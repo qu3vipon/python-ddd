@@ -29,23 +29,23 @@ class Reservation(AggregateRoot):
             date_out=date_out,
             guest=guest,
             reservation_number=ReservationNumber.generate(),
-            status=ReservationStatus.ONGOING,
+            status=ReservationStatus.IN_PROGRESS,
         )
 
     def cancel(self):
-        if not self.status.is_ongoing():
+        if not self.status.in_progress():
             raise ReservationStatusError
 
         self.status = ReservationStatus.CANCELLED
 
     def check_in(self):
-        if not self.status.is_ongoing():
+        if not self.status.in_progress():
             raise ReservationStatusError
 
         self.room.status = RoomStatus.OCCUPIED
 
     def check_out(self):
-        if not self.status.is_ongoing():
+        if not self.status.in_progress():
             raise ReservationStatusError
 
         self.status = ReservationStatus.COMPLETE

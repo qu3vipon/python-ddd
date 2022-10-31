@@ -15,5 +15,5 @@ class RoomStatus(str, Enum):
     RESERVED = "RESERVED"
     OCCUPIED = "OCCUPIED"
 
-    def is_available(self):
+    def is_available(self) -> bool:
         return self == RoomStatus.AVAILABLE

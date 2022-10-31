@@ -25,9 +25,9 @@ class ReservationNumber:
 
 
 class ReservationStatus(str, Enum):
-    ONGOING = "ONGOING"
+    IN_PROGRESS = "IN-PROGRESS"
     CANCELLED = "CANCELLED"
     COMPLETE = "COMPLETE"
 
-    def is_ongoing(self):
-        return self == ReservationStatus.ONGOING
+    def in_progress(self) -> bool:
+        return self == ReservationStatus.IN_PROGRESS
