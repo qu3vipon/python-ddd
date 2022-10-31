@@ -2,19 +2,18 @@ from __future__ import annotations
 
 import random
 import string
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import ClassVar
 
-from context.shared_kernel.domain import FactoryOnly
 
+@dataclass(slots=True)
+class ReservationNumber:
+    DATETIME_FORMAT: ClassVar[str] = "%y%m%d%H%M%S"
+    RANDOM_STR_LENGTH: ClassVar[int] = 7
 
-class ReservationNumber(FactoryOnly):
-    DATETIME_FORMAT: str = "%y%m%d%H%M%S"
-    RANDOM_STR_LENGTH: int = 7
-
-    def __init__(self, value: str, **kwargs):
-        super().__init__(**kwargs)
-        self.value = value
+    value: str
 
     @classmethod
     def generate(cls) -> ReservationNumber:
@@ -22,7 +21,7 @@ class ReservationNumber(FactoryOnly):
         random_strings: str = ''.join(
             random.choice(string.ascii_uppercase + string.digits) for _ in range(cls.RANDOM_STR_LENGTH)
         )
-        return cls(value=time_part + ":" + random_strings, direct=False)
+        return cls(value=time_part + ":" + random_strings)
 
 
 class ReservationStatus(str, Enum):

@@ -4,12 +4,6 @@ from typing import Any, TypeVar
 EntityType = TypeVar("EntityType", bound="Entity")
 
 
-class FactoryOnly:
-    def __init__(self, direct=True):
-        if direct:
-            raise ValueError("You can't instantiate it directly.")
-
-
 class Entity:
     id: int = field(init=False)
 

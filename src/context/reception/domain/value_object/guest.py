@@ -1,16 +1,15 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Optional
 
-from context.shared_kernel.domain import FactoryOnly
+from pydantic import constr
 
 
-class Guest(FactoryOnly):
-    def __init__(self, mobile: str, name: Optional[str], **kwargs):
-        super().__init__(**kwargs)
-        self.mobile = mobile
-        self.name = name
+mobile_type = constr(regex=r"\+[0-9]{2,3}-[0-9]{2}-[0-9]{4}-[0-9]{4}")
 
-    @classmethod
-    def generate(cls, mobile: str, name: Optional[str] = None) -> Guest:
-        return cls(mobile=mobile, name=name, direct=False)
+
+@dataclass(slots=True)
+class Guest:
+    mobile: mobile_type
+    name: Optional[str] = None
