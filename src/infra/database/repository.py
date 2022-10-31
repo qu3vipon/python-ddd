@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from context.shared_kernel.domain import EntityType
+from bounded_context.shared_kernel.domain import EntityType
 from infra.database.connection import get_db
 
 

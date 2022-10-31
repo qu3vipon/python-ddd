@@ -3,12 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from context.reception.application.exception.reservation import ReservationStatusError
-from context.reception.domain.entity.room import Room
-from context.reception.domain.value_object.guest import Guest
-from context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
-from context.reception.domain.value_object.room import RoomStatus
-from context.shared_kernel.domain import AggregateRoot
+from bounded_context.reception.application.exception.reservation import ReservationStatusError
+from bounded_context.reception.domain.entity.room import Room
+from bounded_context.reception.domain.value_object.guest import Guest
+from bounded_context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
+from bounded_context.reception.domain.value_object.room import RoomStatus
+from bounded_context.shared_kernel.domain import AggregateRoot
 
 
 @dataclass(eq=False, slots=True)

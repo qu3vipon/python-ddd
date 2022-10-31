@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 
-from context.reception.application.exception.check_in import CheckInAuthenticationError, CheckInDateError
-from context.reception.domain.entity.reservation import Reservation
+from bounded_context.reception.application.exception.check_in import CheckInAuthenticationError, CheckInDateError
+from bounded_context.reception.domain.entity.reservation import Reservation
 
 
 class CheckInService:

@@ -1,4 +1,4 @@
-from context.shared_kernel.exception import BaseError
+from bounded_context.shared_kernel.exception import BaseError
 
 
 class CheckInDateError(BaseError):

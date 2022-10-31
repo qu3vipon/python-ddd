@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from context.display.presentation.rest import display
-from context.reception.presentation.rest import reception
+from bounded_context.display.presentation.rest import display
+from bounded_context.reception.presentation.rest import reception
 
 app = FastAPI(
     title="Python-DDD-Hotel",
