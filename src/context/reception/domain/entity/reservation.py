@@ -50,3 +50,6 @@ class Reservation(AggregateRoot):
 
         self.status = ReservationStatus.COMPLETE
         self.room.status = RoomStatus.AVAILABLE
+
+    def change_guest(self, guest: Guest):
+        self.guest = guest
