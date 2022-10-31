@@ -15,8 +15,10 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
 
 
 ### Objective
-Let's create a simple hotel reservation system and see how each component of DDD is implemented.
-
+- Let's create a simple hotel reservation system and see how each component of DDD is implemented.
+- Don't go too deep into topics like CQRS or event sourcing.
+- Considering the running curve, this project consists only of essential DDD components. 
+  - excluded: UoW, Use cases, etc.
 
 ## Implementation
 ### ERD
