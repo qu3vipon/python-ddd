@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists
 
-from infra.fastapi.config import settings
+from ddd_hotel.fastapi.config import settings
 
 
 def get_engine():

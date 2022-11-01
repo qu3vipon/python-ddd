@@ -3,9 +3,9 @@
 ## Intro
 I have adopted the DDD pattern for my recent FastAPI project.
 DDD makes it easier to implement complex domain problems.
-Improved readability and easier modification of code has resulted in significant productivity gains.
-As a result, stable service and project management has become possible.
-I'm very satisfied with it, so I want to share this experience.
+Improved readability and easier code modification have greatly increased productivity.
+As a result, stable service and project management have become possible.
+I'm very satisfied with it, so I want to share this experience and knowledge.
 
 ### Why DDD?
 Using DDD makes it easy to maintain collaboration with domain experts, not only engineers.
@@ -66,8 +66,8 @@ src
 │   │   ├── infra
 │   │   ├── presentation
 │   │   └── test
-│   ├── shared_kernel
-└── infra
+│   └── shared_kernel
+└── ddd_hotel
     ├── database
     │   ├── connection
     │   ├── orm

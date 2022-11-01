@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from bounded_context.shared_kernel.domain import EntityType
-from infra.database.connection import get_db
+from ddd_hotel.database.connection import get_db
 
 
 class RDBRepository:
