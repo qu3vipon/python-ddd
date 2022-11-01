@@ -18,6 +18,6 @@ class Entity:
 
 class AggregateRoot(Entity):
     """
-    Root entity of all the operations.
+    An entry point of aggregate.
     """
     pass
