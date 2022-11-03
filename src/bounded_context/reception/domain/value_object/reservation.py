@@ -7,9 +7,11 @@ from datetime import datetime
 from enum import Enum
 from typing import ClassVar
 
+from bounded_context.shared_kernel.domain import ValueObject
+
 
 @dataclass(slots=True)
-class ReservationNumber:
+class ReservationNumber(ValueObject):
     DATETIME_FORMAT: ClassVar[str] = "%y%m%d%H%M%S"
     RANDOM_STR_LENGTH: ClassVar[int] = 7
 
@@ -24,7 +26,7 @@ class ReservationNumber:
         return cls(value=time_part + ":" + random_strings)
 
 
-class ReservationStatus(str, Enum):
+class ReservationStatus(ValueObject, str, Enum):
     IN_PROGRESS = "IN-PROGRESS"
     CANCELLED = "CANCELLED"
     COMPLETE = "COMPLETE"

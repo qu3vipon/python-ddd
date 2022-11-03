@@ -1,7 +1,9 @@
 from dataclasses import field
-from typing import Any, TypeVar
+from enum import EnumMeta
+from typing import Any, TypeVar, Optional
 
 EntityType = TypeVar("EntityType", bound="Entity")
+ValueObjectType = TypeVar("ValueObjectType", bound="ValueObject")
 
 
 class Entity:
@@ -21,3 +23,18 @@ class AggregateRoot(Entity):
     An entry point of aggregate.
     """
     pass
+
+
+class ValueObject:
+    def __composite_values__(self):
+        return self.value,
+
+    @classmethod
+    def from_value(cls, v: Any) -> Optional[ValueObjectType]:
+        if isinstance(cls, EnumMeta):
+            for item in cls:
+                if item.value == v:
+                    return item
+            return None
+        else:
+            return cls(value=v)

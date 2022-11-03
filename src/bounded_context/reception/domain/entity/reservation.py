@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Optional
 
 from bounded_context.reception.application.exception.reservation import ReservationStatusError
 from bounded_context.reception.domain.entity.room import Room
@@ -19,6 +20,11 @@ class Reservation(AggregateRoot):
     date_in: datetime
     date_out: datetime
     guest: Guest
+
+    _number: str = field(init=False)
+    _status: str = field(init=False)
+    _guest_name: str = field(init=False)
+    _guest_mobile: Optional[str] = field(init=False)
 
     @classmethod
     def make(cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest) -> Reservation:

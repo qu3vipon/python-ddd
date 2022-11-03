@@ -2,15 +2,10 @@ from __future__ import annotations
 
 from enum import Enum
 
-
-class RoomNumber(str, Enum):
-    STD_101 = "Standard 101"
-    STD_102 = "Standard 102"
-    DLX_201 = "DELUXE 201"
-    DLX_202 = "DELUXE 202"
+from bounded_context.shared_kernel.domain import ValueObject
 
 
-class RoomStatus(str, Enum):
+class RoomStatus(ValueObject, str, Enum):
     AVAILABLE = "AVAILABLE"
     RESERVED = "RESERVED"
     OCCUPIED = "OCCUPIED"

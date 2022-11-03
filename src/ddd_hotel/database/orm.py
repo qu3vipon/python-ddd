@@ -1,5 +1,10 @@
 from sqlalchemy import MetaData, Table, Column, Integer, String, Text, ForeignKey, DateTime
-from sqlalchemy.orm import registry
+from sqlalchemy.orm import registry, composite, relationship
+
+from bounded_context.reception.domain.entity.room import Room
+from bounded_context.reception.domain.value_object.guest import Guest
+from bounded_context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
+from bounded_context.reception.domain.value_object.room import RoomStatus
 
 metadata = MetaData()
 mapper_registry = registry()
@@ -10,7 +15,7 @@ room_table = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("number", String(20), nullable=False),
-    Column("status", String(10), nullable=False),
+    Column("status", String(20), nullable=False),
     Column("image_url", String(200), nullable=False),
     Column("description", Text, nullable=True),
 )
@@ -21,10 +26,11 @@ reservation_table = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("room_id", Integer, ForeignKey("hotel_room.id"), nullable=False),
     Column("number", String(20), nullable=False),
+    Column("status", String(20), nullable=False),
     Column("date_in", DateTime(timezone=True)),
     Column("date_out", DateTime(timezone=True)),
     Column("guest_mobile", String(20), nullable=False),
-    Column("guest_name", String(50), nullable=False),
+    Column("guest_name", String(50), nullable=True),
 )
 
 
@@ -35,5 +41,25 @@ def init_orm_mappers():
     from bounded_context.reception.domain.entity.room import Room as ReceptionRoomEntity
     from bounded_context.reception.domain.entity.reservation import Reservation as ReceptionReservationEntity
 
-    mapper_registry.map_imperatively(ReceptionRoomEntity, room_table)
-    mapper_registry.map_imperatively(ReceptionReservationEntity, reservation_table)
+    mapper_registry.map_imperatively(
+        ReceptionRoomEntity,
+        room_table,
+        properties={
+            "_status": room_table.c.status,
+            "status": composite(RoomStatus.from_value, room_table.c.status),
+        }
+    )
+    mapper_registry.map_imperatively(
+        ReceptionReservationEntity,
+        reservation_table,
+        properties={
+            "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc),
+            "_number": reservation_table.c.number,
+            "_status": reservation_table.c.status,
+            "_guest_mobile": reservation_table.c.guest_mobile,
+            "_guest_name": reservation_table.c.guest_name,
+            "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
+            "status": composite(ReservationStatus.from_value, reservation_table.c.status),
+            "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
+        }
+    )

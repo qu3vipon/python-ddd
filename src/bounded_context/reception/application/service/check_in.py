@@ -9,7 +9,7 @@ class CheckInService:
     LATE_CHECK_IN_OFFSET: int = 6
 
     @staticmethod
-    def is_valid_date(reservation: Reservation) -> bool:
+    def _is_valid_date(reservation: Reservation) -> bool:
         return (
             reservation.date_in - timedelta(hours=CheckInService.EARLY_CHECK_IN_OFFSET)
             <= datetime.now()
@@ -17,14 +17,14 @@ class CheckInService:
         )
 
     @staticmethod
-    def is_valid_guest(reservation: Reservation, mobile: str) -> bool:
+    def _is_valid_guest(reservation: Reservation, mobile: str) -> bool:
         return reservation.guest.mobile == mobile
 
     def check_in(self, reservation: Reservation, mobile: str) -> None:
-        if not self.is_valid_date(reservation=reservation):
+        if not self._is_valid_date(reservation=reservation):
             raise CheckInDateError
 
-        if not self.is_valid_guest(reservation=reservation, mobile=mobile):
+        if not self._is_valid_guest(reservation=reservation, mobile=mobile):
             raise CheckInAuthenticationError
 
         reservation.check_in()
