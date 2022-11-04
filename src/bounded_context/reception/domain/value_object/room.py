@@ -12,3 +12,6 @@ class RoomStatus(ValueObject, str, Enum):
 
     def is_available(self) -> bool:
         return self == RoomStatus.AVAILABLE
+
+    def is_occupied(self) -> bool:
+        return self == RoomStatus.OCCUPIED

@@ -4,7 +4,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
+
 from bounded_context.reception.application.exception.reservation import ReservationStatusError
+from bounded_context.reception.application.exception.room import RoomStatusError
 from bounded_context.reception.domain.entity.room import Room
 from bounded_context.reception.domain.value_object.guest import Guest
 from bounded_context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
@@ -12,7 +14,7 @@ from bounded_context.reception.domain.value_object.room import RoomStatus
 from bounded_context.shared_kernel.domain import AggregateRoot
 
 
-@dataclass(eq=False, slots=True)
+@dataclass(eq=False)
 class Reservation(AggregateRoot):
     room: Room
     reservation_number: ReservationNumber
@@ -51,6 +53,9 @@ class Reservation(AggregateRoot):
         self.room.status = RoomStatus.OCCUPIED
 
     def check_out(self):
+        if not self.room.status.is_occupied():
+            raise RoomStatusError
+
         if not self.status.in_progress():
             raise ReservationStatusError
 

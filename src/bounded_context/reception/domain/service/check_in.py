@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 
 from bounded_context.reception.application.exception.check_in import CheckInAuthenticationError, CheckInDateError
 from bounded_context.reception.domain.entity.reservation import Reservation
+from bounded_context.reception.domain.value_object.guest import mobile_type
 
 
 class CheckInService:
@@ -12,12 +13,13 @@ class CheckInService:
     def _is_valid_date(reservation: Reservation) -> bool:
         return (
             reservation.date_in - timedelta(hours=CheckInService.EARLY_CHECK_IN_OFFSET)
-            <= datetime.now()
+            <= datetime.utcnow()
             <= reservation.date_out - timedelta(hours=CheckInService.LATE_CHECK_IN_OFFSET)
         )
 
     @staticmethod
-    def _is_valid_guest(reservation: Reservation, mobile: str) -> bool:
+    def _is_valid_guest(reservation: Reservation, mobile: mobile_type) -> bool:
+        # mobile authentication
         return reservation.guest.mobile == mobile
 
     def check_in(self, reservation: Reservation, mobile: str) -> None:
