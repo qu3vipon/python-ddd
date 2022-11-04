@@ -344,6 +344,93 @@ class Guest(ValueObject):
 
 If a value object consists of more than one column, you must override the `__composite_values__()` as shown above.
 
-#### Dependency Injection (Service & Repository)
+#### Dependency Injection
+FastAPI's `Depends` makes it easy to implement `Dependency Injection` between different layers.
+
+- [presentation/rest/reception.py](src/bounded_context/reception/presentation/rest/reception.py)
+```python
+@router.get("/reservations/{reservation_number}")
+def get_reservation(
+    reservation_number: str,
+    reservation_query: ReservationQueryUseCase = Depends(ReservationQueryUseCase),
+):
+    try:
+        reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
+    except ReservationNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.message,
+        )
+    return ReservationResponse(
+        detail="ok",
+        result=ReservationDTO.build_result(reservation=reservation),
+    )
+```
+
+- [application/use_case/query.py](src/bounded_context/reception/application/use_case/query.py)
+```python
+class ReservationQueryUseCase:
+    def __init__(
+        self,
+        reservation_repo: ReservationRDBRepository = Depends(ReservationRDBRepository),
+    ):
+        self.reservation_repo = reservation_repo
+
+    def get_reservation(self, reservation_number: str) -> Reservation:
+        reservation_number = ReservationNumber.from_value(reservation_number)
+
+        reservation: Optional[Reservation] = (
+            self.reservation_repo.get_reservation_by_reservation_number(reservation_number=reservation_number)
+        )
+
+        if not reservation:
+            raise ReservationNotFoundError
+
+        return reservation
+```
+
+- [infra/repository/reservation.py](src/bounded_context/reception/infra/repository/reservation.py)
+```python
+class ReservationRDBRepository(RDBRepository):
+    def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Optional[Reservation]:
+        return self.session.query(Reservation).filter_by(reservation_number=reservation_number).first()
+```
 
 #### DTO(Data Transfer Object)
+Pydantic makes it easy to implement the DTO used for request and response.
+- [application/dto/request.py](src/bounded_context/reception/application/dto/request.py)
+```python
+class CreateReservationRequest(BaseModel):
+    room_number: str
+    date_in: datetime
+    date_out: datetime
+    guest_mobile: mobile_type
+    guest_name: str | None = None
+```
+
+- [application/dto/response.py](src/bounded_context/reception/application/dto/response.py)
+```python
+class ReservationDTO(BaseModel):
+    room: RoomDTO
+    reservation_number: str
+    status: ReservationStatus
+    date_in: datetime
+    date_out: datetime
+    guest: GuestDTO
+
+    @classmethod
+    def build_result(cls, reservation: Reservation) -> ReservationDTO:
+        return cls(
+            room=RoomDTO.from_entity(reservation.room),
+            reservation_number=reservation.reservation_number.value,
+            status=reservation.status,
+            date_in=reservation.date_in,
+            date_out=reservation.date_out,
+            guest=GuestDTO.from_entity(reservation.guest),
+        )
+
+
+class ReservationResponse(BaseResponse):
+    result: ReservationDTO
+
+```
