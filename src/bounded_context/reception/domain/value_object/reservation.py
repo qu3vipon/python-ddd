@@ -4,7 +4,6 @@ import random
 import string
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
 from typing import ClassVar
 
 from bounded_context.shared_kernel.domain import ValueObject
@@ -24,12 +23,3 @@ class ReservationNumber(ValueObject):
             random.choice(string.ascii_uppercase + string.digits) for _ in range(cls.RANDOM_STR_LENGTH)
         )
         return cls(value=time_part + ":" + random_strings)
-
-
-class ReservationStatus(ValueObject, str, Enum):
-    IN_PROGRESS = "IN-PROGRESS"
-    CANCELLED = "CANCELLED"
-    COMPLETE = "COMPLETE"
-
-    def in_progress(self) -> bool:
-        return self == ReservationStatus.IN_PROGRESS

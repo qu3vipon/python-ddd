@@ -9,8 +9,8 @@ from bounded_context.reception.application.exception.reservation import Reservat
 from bounded_context.reception.application.exception.room import RoomStatusError
 from bounded_context.reception.domain.entity.room import Room
 from bounded_context.reception.domain.value_object.guest import Guest
-from bounded_context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
-from bounded_context.reception.domain.value_object.room import RoomStatus
+from bounded_context.reception.domain.value_object.reservation import ReservationNumber
+from bounded_context.shared_kernel.value_object import ReservationStatus, RoomStatus
 from bounded_context.shared_kernel.domain import AggregateRoot
 
 
@@ -45,8 +45,12 @@ class Reservation(AggregateRoot):
             raise ReservationStatusError
 
         self.status = ReservationStatus.CANCELLED
+        self.room.status = RoomStatus.AVAILABLE
 
     def check_in(self):
+        if not self.room.status.is_available():
+            raise RoomStatusError
+
         if not self.status.in_progress():
             raise ReservationStatusError
 

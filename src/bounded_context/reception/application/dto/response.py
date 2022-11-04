@@ -8,8 +8,7 @@ from pydantic import BaseModel
 from bounded_context.reception.domain.entity.reservation import Reservation
 from bounded_context.reception.domain.entity.room import Room
 from bounded_context.reception.domain.value_object.guest import Guest, mobile_type
-from bounded_context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
-from bounded_context.reception.domain.value_object.room import RoomStatus
+from bounded_context.shared_kernel.value_object import ReservationStatus, RoomStatus
 from bounded_context.shared_kernel.dto import BaseResponse
 
 

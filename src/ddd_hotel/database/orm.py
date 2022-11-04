@@ -3,8 +3,8 @@ from sqlalchemy.orm import registry, composite, relationship
 
 from bounded_context.reception.domain.entity.room import Room
 from bounded_context.reception.domain.value_object.guest import Guest
-from bounded_context.reception.domain.value_object.reservation import ReservationNumber, ReservationStatus
-from bounded_context.reception.domain.value_object.room import RoomStatus
+from bounded_context.reception.domain.value_object.reservation import ReservationNumber
+from bounded_context.shared_kernel.value_object import ReservationStatus, RoomStatus
 
 metadata = MetaData()
 mapper_registry = registry()
@@ -61,5 +61,16 @@ def init_orm_mappers():
             "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
             "status": composite(ReservationStatus.from_value, reservation_table.c.status),
             "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
+        }
+    )
+
+    from bounded_context.display.domain.entity.room import Room as DisplayRoomEntity
+
+    mapper_registry.map_imperatively(
+        DisplayRoomEntity,
+        room_table,
+        properties={
+            "_status": room_table.c.status,
+            "status": composite(RoomStatus.from_value, room_table.c.status),
         }
     )

@@ -2,14 +2,14 @@ from typing import Optional
 
 from fastapi import Depends
 
-from bounded_context.reception.application.dto.request.reservation import CreateReservationRequest, UpdateGuestRequest
+from bounded_context.reception.application.dto.request import CreateReservationRequest, UpdateGuestRequest
 from bounded_context.reception.application.exception.room import RoomNotFoundError
 from bounded_context.reception.application.use_case.query import ReservationQueryUseCase
 from bounded_context.reception.domain.entity.reservation import Reservation
 from bounded_context.reception.domain.entity.room import Room
 from bounded_context.reception.domain.service.check_in import CheckInService
 from bounded_context.reception.domain.value_object.guest import Guest, mobile_type
-from bounded_context.reception.infra.repository.reservation import ReservationRDBRepository
+from bounded_context.reception.infra.repository import ReservationRDBRepository
 
 
 class ReservationCommandUseCase:

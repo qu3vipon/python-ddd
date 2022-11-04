@@ -30,11 +30,11 @@ class ValueObject:
         return self.value,
 
     @classmethod
-    def from_value(cls, v: Any) -> Optional[ValueObjectType]:
+    def from_value(cls, value: Any) -> Optional[ValueObjectType]:
         if isinstance(cls, EnumMeta):
             for item in cls:
-                if item.value == v:
+                if item.value == value:
                     return item
             return None
         else:
-            return cls(value=v)
+            return cls(value=value)

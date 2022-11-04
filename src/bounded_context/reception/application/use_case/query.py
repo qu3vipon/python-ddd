@@ -5,7 +5,7 @@ from fastapi import Depends
 from bounded_context.reception.application.exception.reservation import ReservationNotFoundError
 from bounded_context.reception.domain.entity.reservation import Reservation
 from bounded_context.reception.domain.value_object.reservation import ReservationNumber
-from bounded_context.reception.infra.repository.reservation import ReservationRDBRepository
+from bounded_context.reception.infra.repository import ReservationRDBRepository
 
 
 class ReservationQueryUseCase:
