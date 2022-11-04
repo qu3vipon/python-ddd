@@ -21,7 +21,6 @@ class ReservationQueryUseCase:
         reservation: Optional[Reservation] = (
             self.reservation_repo.get_reservation_by_reservation_number(reservation_number=reservation_number)
         )
-
         if not reservation:
             raise ReservationNotFoundError
 

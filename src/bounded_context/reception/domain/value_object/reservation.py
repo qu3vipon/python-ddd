@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar
 
-from bounded_context.shared_kernel.domain import ValueObject
+from bounded_context.shared_kernel.value_object import ValueObject
 
 
 @dataclass(slots=True)

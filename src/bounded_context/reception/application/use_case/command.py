@@ -16,18 +16,17 @@ class ReservationCommandUseCase:
     def __init__(
         self,
         reservation_repo: ReservationRDBRepository = Depends(ReservationRDBRepository),
-        reservation_query_use_case: ReservationQueryUseCase = Depends(ReservationQueryUseCase),
+        reservation_query: ReservationQueryUseCase = Depends(ReservationQueryUseCase),
         check_in_service: CheckInService = Depends(CheckInService),
     ):
         self.reservation_repo = reservation_repo
-        self.reservation_query_use_case = reservation_query_use_case
+        self.reservation_query = reservation_query
         self.check_in_service = check_in_service
 
     def make_reservation(self, request: CreateReservationRequest) -> Reservation:
         room: Optional[Room] = (
             self.reservation_repo.get_room_by_room_number(room_number=request.room_number)
         )
-
         if not room:
             raise RoomNotFoundError
 
@@ -43,7 +42,7 @@ class ReservationCommandUseCase:
         return reservation
 
     def update_guest_info(self, reservation_number: str, request: UpdateGuestRequest) -> Reservation:
-        reservation: Reservation = self.reservation_query_use_case.get_reservation(reservation_number=reservation_number)
+        reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
 
         guest: Guest = Guest(mobile=request.guest_mobile, name=request.guest_name)
         reservation.change_guest(guest=guest)
@@ -54,7 +53,7 @@ class ReservationCommandUseCase:
         return reservation
 
     def check_in(self, reservation_number: str, mobile: mobile_type) -> Reservation:
-        reservation: Reservation = self.reservation_query_use_case.get_reservation(reservation_number=reservation_number)
+        reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
 
         self.check_in_service.check_in(reservation=reservation, mobile=mobile)
 
@@ -64,7 +63,7 @@ class ReservationCommandUseCase:
         return reservation
 
     def check_out(self, reservation_number: str) -> Reservation:
-        reservation: Reservation = self.reservation_query_use_case.get_reservation(reservation_number=reservation_number)
+        reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
 
         reservation.check_out()
 
@@ -74,7 +73,7 @@ class ReservationCommandUseCase:
         return reservation
 
     def cancel(self, reservation_number: str) -> Reservation:
-        reservation: Reservation = self.reservation_query_use_case.get_reservation(reservation_number=reservation_number)
+        reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
 
         reservation.cancel()
 

@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import constr
 
-from bounded_context.shared_kernel.domain import ValueObject
+from bounded_context.shared_kernel.value_object import ValueObject
 
 mobile_type = constr(regex=r"\+[0-9]{2,3}-[0-9]{2}-[0-9]{4}-[0-9]{4}")
 

@@ -1,15 +1,15 @@
-# [WIP] Python Domain-Driven-Design(DDD) Example
+# Python Domain-Driven-Design(DDD) Example
 
 ## Intro
-I have adopted the DDD pattern for my recent FastAPI project.
+I've adopted the DDD pattern for my recent FastAPI project.
 DDD makes it easier to implement complex domain problems.
-Improved readability and easier code modification have greatly increased productivity.
-As a result, stable service and project management have become possible.
-I'm very satisfied with it, so I want to share this experience and knowledge.
+Improved readability and easy code correction have significantly improved productivity.
+As a result, stable project management has become possible.
+I'm very satisfied with it, so I'd like to share this experience and knowledge.
 
 ### Why DDD?
 Using DDD makes it easy to maintain collaboration with domain experts, not only engineers.
-- It is possible to prevent the mental model and the actually implemented software from being dualized.
+- It is possible to prevent the mental model and the actual software from being dualized.
 - Business logic is easy to manage.
 - Infrastructure change is flexible.
 
@@ -18,6 +18,9 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
 - Let's create a simple hotel reservation system and see how each component of DDD is implemented.
 - Don't go too deep into topics like event sourcing.
 - Considering the running curve, this project consists only of essential DDD components.
+
+### Requirements
+- Python 3.10+
 
 ## Implementation
 ### ERD
@@ -29,10 +32,9 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
 
 ![bounded-context](./docs/image/bounded-context.png)
 
-- Display (Handling tasks related to the hotel room display)
-  - List Rooms 
-  - Add a Room
-- Reception (Handling tasks related to the hotel room reservation)
+- Display(Handling tasks related to the hotel room display)
+  - List Rooms
+- Reception(Handling tasks related to the hotel room reservation)
   - Make a reservation
   - Change the reservation details
   - Cancel a reservation
@@ -55,16 +57,14 @@ src
 │   │   ├── infra
 │   │   │   ├── repository
 │   │   │   └── external_apis
-│   │   ├── presentation
-│   │   │   ├── grpc
-│   │   │   └── rest
-│   │   └── test
+│   │   └── presentation
+│   │       ├── grpc
+│   │       └── rest
 │   ├── reception
 │   │   ├── application
 │   │   ├── domain
 │   │   ├── infra
-│   │   ├── presentation
-│   │   └── test
+│   │   └── presentation
 │   └── shared_kernel
 └── ddd_hotel
     ├── database
@@ -215,9 +215,6 @@ def init_orm_mappers():
     from bounded_context.reception.domain.entity.room import Room as ReceptionRoomEntity
     from bounded_context.reception.domain.entity.reservation import Reservation as ReceptionReservationEntity
   
-    from bounded_context.display.domain.entity.room import Room as DisplayRoomEntity
-    from bounded_context.display.domain.entity.reservation import Reservation as DisplayReservationEntity
-  
     mapper_registry.map_imperatively(
         ReceptionRoomEntity,
         room_table,
@@ -240,9 +237,18 @@ def init_orm_mappers():
           "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
         }
     )
-  
-    mapper_registry.map_imperatively(DisplayRoomEntity, room_table)
-    mapper_registry.map_imperatively(DisplayReservationEntity, reservation_table)
+
+    from bounded_context.display.domain.entity.room import Room as DisplayRoomEntity
+    
+    mapper_registry.map_imperatively(
+      DisplayRoomEntity,
+      room_table,
+      properties={
+        "_status": room_table.c.status,
+        "status": composite(RoomStatus.from_value, room_table.c.status),
+      }
+    )
+    
 ```
 
 ```python
@@ -291,14 +297,14 @@ class ValueObject:
         return self.value,
   
     @classmethod
-    def from_value(cls, v: Any) -> Optional[ValueObjectType]:
+    def from_value(cls, value: Any) -> Optional[ValueObjectType]:
         if isinstance(cls, EnumMeta):
             for item in cls:
-                if item.value == v:
+                if item.value == value:
                     return item
             return None
         else:
-            return cls(value=v)
+            return cls(value=value)
 ```
 
 If you define the `__composite_values_()` method, sqlalchemy separates the objects and puts them in the columns when you save the data.
@@ -389,7 +395,7 @@ class ReservationQueryUseCase:
         return reservation
 ```
 
-- [infra/repository/reservation.py](src/bounded_context/reception/infra/repository/reservation.py)
+- [infra/repository/repository.py](src/bounded_context/reception/infra/repository.py)
 ```python
 class ReservationRDBRepository(RDBRepository):
     def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Optional[Reservation]:
