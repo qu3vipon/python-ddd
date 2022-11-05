@@ -49,41 +49,37 @@ Check-in & check-out domains can also be isolated, but let's say that reception 
 ### Project Structure
 ```tree
 src
-├── bounded_context
-│   ├── display
-│   │   ├── application
-│   │   │   ├── dto
-│   │   │   │   ├── request
-│   │   │   │   └── response
-│   │   │   ├── exception
-│   │   │   └── use_case
-│   │   │       ├── query
-│   │   │       └── command
-│   │   ├── domain
-│   │   │   ├── entity
-│   │   │   ├── service
-│   │   │   └── value_object
-│   │   ├── infra
-│   │   │   ├── repository
-│   │   │   └── external_apis
-│   │   └── presentation
-│   │       ├── grpc
-│   │       └── rest
-│   ├── reception
-│   │   ├── application
-│   │   ├── domain
-│   │   ├── infra
-│   │   └── presentation
-│   └── shared_kernel
-└── ddd_hotel
-    ├── database
-    │   ├── connection
-    │   ├── orm
-    │   └── repository
-    ├── fastapi
-    │   ├── config
-    │   └── main.py 
-    └── log
+├── display
+│   ├── application
+│   │   ├── dto
+│   │   │   ├── request
+│   │   │   └── response
+│   │   ├── exception
+│   │   └── use_case
+│   │       ├── query
+│   │       └── command
+│   ├── domain
+│   │   ├── entity
+│   │   ├── service
+│   │   └── value_object
+│   ├── infra
+│   │   ├── repository
+│   │   └── external_apis
+│   └── presentation
+│       ├── grpc
+│       └── rest
+├── reception
+│   ├── application
+│   ├── domain
+│   ├── infra
+│   └── presentation
+└── shared_kernel
+    ├── application
+    ├── domain
+    └── infra
+        ├── database
+        ├── fastapi
+        └── log
 ```
 
 ### DDD Components
@@ -187,7 +183,7 @@ Declare an `instance method` and use it when changing an entity.
 
 #### 3. Entity: Table Mapping
 > NOTE: This is the most beautiful part of implementing DDD with sqlalchemy.
-- [ddd_hotel/database/orm.py](src/ddd_hotel/database/orm.py)
+- [ddd_hotel/database/orm.py](src/shared_kernel/infra/database/orm.py)
 
 ```python
 from sqlalchemy import MetaData, Table, Column, Integer, String, Text, ForeignKey, DateTime
@@ -197,68 +193,68 @@ metadata = MetaData()
 mapper_registry = registry()
 
 room_table = Table(
-    "hotel_room",
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("number", String(20), nullable=False),
-    Column("status", String(20), nullable=False),
-    Column("image_url", String(200), nullable=False),
-    Column("description", Text, nullable=True),
-    UniqueConstraint("number", name="uix_hotel_room_number"),
+  "hotel_room",
+  metadata,
+  Column("id", Integer, primary_key=True, autoincrement=True),
+  Column("number", String(20), nullable=False),
+  Column("status", String(20), nullable=False),
+  Column("image_url", String(200), nullable=False),
+  Column("description", Text, nullable=True),
+  UniqueConstraint("number", name="uix_hotel_room_number"),
 )
 
 reservation_table = Table(
-    "room_reservation",
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("room_id", Integer, ForeignKey("hotel_room.id"), nullable=False),
-    Column("number", String(20), nullable=False),
-    Column("status", String(20), nullable=False),
-    Column("date_in", DateTime(timezone=True)),
-    Column("date_out", DateTime(timezone=True)),
-    Column("guest_mobile", String(20), nullable=False),
-    Column("guest_name", String(50), nullable=True),
+  "room_reservation",
+  metadata,
+  Column("id", Integer, primary_key=True, autoincrement=True),
+  Column("room_id", Integer, ForeignKey("hotel_room.id"), nullable=False),
+  Column("number", String(20), nullable=False),
+  Column("status", String(20), nullable=False),
+  Column("date_in", DateTime(timezone=True)),
+  Column("date_out", DateTime(timezone=True)),
+  Column("guest_mobile", String(20), nullable=False),
+  Column("guest_name", String(50), nullable=True),
 )
 
 
 def init_orm_mappers():
-    from bounded_context.reception.domain.entity.room import Room as ReceptionRoomEntity
-    from bounded_context.reception.domain.entity.reservation import Reservation as ReceptionReservationEntity
-  
-    mapper_registry.map_imperatively(
-        ReceptionRoomEntity,
-        room_table,
-        properties={
-          "_status": room_table.c.status,
-          "status": composite(RoomStatus.from_value, room_table.c.status),
-        }
-    )
-    mapper_registry.map_imperatively(
-        ReceptionReservationEntity,
-        reservation_table,
-        properties={
-          "_number": reservation_table.c.number,
-          "_status": reservation_table.c.status,
-          "_guest_mobile": reservation_table.c.guest_mobile,
-          "_guest_name": reservation_table.c.guest_name,
-          "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc),
-          "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
-          "status": composite(ReservationStatus.from_value, reservation_table.c.status),
-          "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
-        }
-    )
+  from reception.domain.entity.room import Room as ReceptionRoomEntity
+  from reception.domain.entity.reservation import Reservation as ReceptionReservationEntity
 
-    from bounded_context.display.domain.entity.room import Room as DisplayRoomEntity
-    
-    mapper_registry.map_imperatively(
-      DisplayRoomEntity,
-      room_table,
-      properties={
-        "_status": room_table.c.status,
-        "status": composite(RoomStatus.from_value, room_table.c.status),
-      }
-    )
-    
+  mapper_registry.map_imperatively(
+    ReceptionRoomEntity,
+    room_table,
+    properties={
+      "_status": room_table.c.status,
+      "status": composite(RoomStatus.from_value, room_table.c.status),
+    }
+  )
+  mapper_registry.map_imperatively(
+    ReceptionReservationEntity,
+    reservation_table,
+    properties={
+      "_number": reservation_table.c.number,
+      "_status": reservation_table.c.status,
+      "_guest_mobile": reservation_table.c.guest_mobile,
+      "_guest_name": reservation_table.c.guest_name,
+      "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc),
+      "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
+      "status": composite(ReservationStatus.from_value, reservation_table.c.status),
+      "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
+    }
+  )
+
+  from display.domain.entity.room import Room as DisplayRoomEntity
+
+  mapper_registry.map_imperatively(
+    DisplayRoomEntity,
+    room_table,
+    properties={
+      "_status": room_table.c.status,
+      "status": composite(RoomStatus.from_value, room_table.c.status),
+    }
+  )
+
 ```
 
 ```python
@@ -360,7 +356,7 @@ If a value object consists of more than one column, you must override the `__com
 #### Dependency Injection
 FastAPI's `Depends` makes it easy to implement **Dependency Injection** between different layers.
 
-- [presentation/rest/reception.py](src/bounded_context/reception/presentation/rest/reception.py)
+- [presentation/rest/reception.py](src/reception/presentation/rest/reception.py)
 ```python
 @router.get("/reservations/{reservation_number}")
 def get_reservation(
@@ -380,7 +376,7 @@ def get_reservation(
     )
 ```
 
-- [application/use_case/query.py](src/bounded_context/reception/application/use_case/query.py)
+- [application/use_case/query.py](src/reception/application/use_case/query.py)
 ```python
 class ReservationQueryUseCase:
     def __init__(
@@ -401,7 +397,7 @@ class ReservationQueryUseCase:
         return reservation
 ```
 
-- [infra/repository/repository.py](src/bounded_context/reception/infra/repository.py)
+- [infra/repository/repository.py](src/reception/infra/repository.py)
 ```python
 class ReservationRDBRepository(RDBRepository):
     def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Optional[Reservation]:
@@ -410,7 +406,7 @@ class ReservationRDBRepository(RDBRepository):
 
 #### DTO(Data Transfer Object)
 Pydantic makes it easy to implement the DTO used for request and response.
-- [application/dto/request.py](src/bounded_context/reception/application/dto/request.py)
+- [application/dto/request.py](src/reception/application/dto/request.py)
 ```python
 class CreateReservationRequest(BaseModel):
     room_number: str
@@ -420,7 +416,7 @@ class CreateReservationRequest(BaseModel):
     guest_name: str | None = None
 ```
 
-- [application/dto/response.py](src/bounded_context/reception/application/dto/response.py)
+- [application/dto/response.py](src/reception/application/dto/response.py)
 ```python
 class ReservationDTO(BaseModel):
     room: RoomDTO
