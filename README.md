@@ -21,6 +21,10 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
 
 ### Requirements
 - Python 3.10+
+- SQLAlchemy 1.4+
+- fastapi
+- uvicorn
+- pydantic
 
 ## Implementation
 ### ERD
@@ -436,7 +440,6 @@ class ReservationDTO(BaseModel):
             date_out=reservation.date_out,
             guest=GuestDTO.from_entity(reservation.guest),
         )
-
 
 class ReservationResponse(BaseResponse):
     result: ReservationDTO
