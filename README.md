@@ -49,10 +49,15 @@ src
 │   ├── display
 │   │   ├── application
 │   │   │   ├── dto
+│   │   │   │   ├── request
+│   │   │   │   └── response
 │   │   │   ├── exception
-│   │   │   └── service
+│   │   │   └── use_case
+│   │   │       ├── query
+│   │   │       └── command
 │   │   ├── domain
 │   │   │   ├── entity
+│   │   │   ├── service
 │   │   │   └── value_object
 │   │   ├── infra
 │   │   │   ├── repository
@@ -130,7 +135,7 @@ To use `__eq__()` from `Entity` mix-in, add `eq=False`.
 From Python 3.10, `slots=True` makes dataclass more memory-efficient.
 
 - Value Object <br>
-With sqlalchemy, you can define the value objects within entity when reading data from a repository.
+With sqlalchemy, you can use value objects within entity when reading & saving data from a repository.
 I will introduce the details later.
 
 #### 2. Entity: Life Cycle
@@ -260,8 +265,7 @@ init_orm_mappers()
 Because entities do not need to know the implementation of the database table, let's use sqlalchemy's [imperative mapping](https://docs.sqlalchemy.org/en/14/orm/mapping_styles.html#imperative-mapping) to separate entity definitions and table definitions.
 
 ```python
-# src/bounded_context/reservation/...
-@dataclass(eq=False)
+@dataclass(eq=False, slots=True)
 class Room(Entity):
     number: str
     status: Optional[RoomStatus]
@@ -285,7 +289,7 @@ class Guest(ValueObject):
     name: Optional[str] = None
 ```
 
-The value object is an object that matter only as the combination of their attributes.
+A value object is an object that matter only as the combination of its attributes.
 Guest A's name and mobile should be treated as a single unit, so make it a value object.
 
 Using sqlalchemy's [composite column type](https://docs.sqlalchemy.org/en/14/orm/composites.html#composite-column-types), it allows you to implement value objects by changing columns to an object that fits your needs when you load data.
@@ -308,7 +312,7 @@ class ValueObject:
             return cls(value=value)
 ```
 
-If you define the `__composite_values_()` method, sqlalchemy separates the objects and puts them in the columns when you save the data.
+If you define the `__composite_values_()` method, sqlalchemy separates the object and puts them in the columns when you save the data.
 
 > NOTE: The , in the return of `__composite_value__()` is not a typo.
 
@@ -318,8 +322,6 @@ class RoomStatus(ValueObject, str, Enum):
     RESERVED = "RESERVED"
     OCCUPIED = "OCCUPIED"
 
-    def is_available(self) -> bool:
-        return self == RoomStatus.AVAILABLE
 
 @dataclass(slots=True)
 class ReservationNumber(ValueObject):
@@ -337,7 +339,7 @@ class ReservationNumber(ValueObject):
         return cls(value=time_part + ":" + random_strings)
 ```
 
-`ReservationNumber` intentionally used the name `value` when adding an attribute to leverage `_composite_values_()` in `ValueObject` class.
+`ReservationNumber` intentionally used the name `value` for a single attribute to leverage `__composite_values__()` in `ValueObject` class.
 
 ```python
 @dataclass(slots=True)
@@ -352,7 +354,7 @@ class Guest(ValueObject):
 If a value object consists of more than one column, you must override the `__composite_values__()` as shown above.
 
 #### Dependency Injection
-FastAPI's `Depends` makes it easy to implement `Dependency Injection` between different layers.
+FastAPI's `Depends` makes it easy to implement **Dependency Injection** between different layers.
 
 - [presentation/rest/reception.py](src/bounded_context/reception/presentation/rest/reception.py)
 ```python
@@ -389,7 +391,6 @@ class ReservationQueryUseCase:
         reservation: Optional[Reservation] = (
             self.reservation_repo.get_reservation_by_reservation_number(reservation_number=reservation_number)
         )
-
         if not reservation:
             raise ReservationNotFoundError
 
