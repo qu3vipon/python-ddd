@@ -195,6 +195,7 @@ room_table = Table(
     Column("status", String(20), nullable=False),
     Column("image_url", String(200), nullable=False),
     Column("description", Text, nullable=True),
+    UniqueConstraint("number", name="uix_hotel_room_number"),
 )
 
 reservation_table = Table(

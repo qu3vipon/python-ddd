@@ -14,7 +14,7 @@ from bounded_context.shared_kernel.value_object import ReservationStatus, RoomSt
 from bounded_context.shared_kernel.domain import AggregateRoot
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, slots=True)
 class Reservation(AggregateRoot):
     room: Room
     reservation_number: ReservationNumber
@@ -48,7 +48,7 @@ class Reservation(AggregateRoot):
         self.room.status = RoomStatus.AVAILABLE
 
     def check_in(self):
-        if not self.room.status.is_available():
+        if not self.room.status.is_reserved():
             raise RoomStatusError
 
         if not self.status.in_progress():

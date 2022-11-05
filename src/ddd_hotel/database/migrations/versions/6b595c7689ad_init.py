@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 36c66a2cc388
+Revision ID: 6b595c7689ad
 Revises: 
-Create Date: 2022-11-03 23:17:28.355581
+Create Date: 2022-11-05 09:16:27.850505
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '36c66a2cc388'
+revision = '6b595c7689ad'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,7 +24,8 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=20), nullable=False),
     sa.Column('image_url', sa.String(length=200), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('number', name='uix_hotel_room_number')
     )
     op.create_table('room_reservation',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),

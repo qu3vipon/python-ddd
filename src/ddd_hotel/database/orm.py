@@ -1,4 +1,4 @@
-from sqlalchemy import MetaData, Table, Column, Integer, String, Text, ForeignKey, DateTime
+from sqlalchemy import MetaData, Table, Column, Integer, String, Text, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy.orm import registry, composite, relationship
 
 from bounded_context.reception.domain.entity.room import Room
@@ -18,6 +18,7 @@ room_table = Table(
     Column("status", String(20), nullable=False),
     Column("image_url", String(200), nullable=False),
     Column("description", Text, nullable=True),
+    UniqueConstraint("number", name="uix_hotel_room_number"),
 )
 
 reservation_table = Table(
