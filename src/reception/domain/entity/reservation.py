@@ -4,14 +4,13 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
-
 from reception.application.exception.reservation import ReservationStatusError
 from reception.application.exception.room import RoomStatusError
 from reception.domain.entity.room import Room
 from reception.domain.value_object.guest import Guest
 from reception.domain.value_object.reservation import ReservationNumber
-from shared_kernel.domain.value_object import ReservationStatus, RoomStatus
 from shared_kernel.domain.entity import AggregateRoot
+from shared_kernel.domain.value_object import ReservationStatus, RoomStatus
 
 
 @dataclass(eq=False, slots=True)

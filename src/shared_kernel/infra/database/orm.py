@@ -1,5 +1,5 @@
-from sqlalchemy import MetaData, Table, Column, Integer, String, Text, ForeignKey, DateTime, UniqueConstraint
-from sqlalchemy.orm import registry, composite, relationship
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, String, Table, Text, UniqueConstraint
+from sqlalchemy.orm import composite, registry, relationship
 
 from reception.domain.entity.room import Room
 from reception.domain.value_object.guest import Guest
@@ -39,8 +39,8 @@ def init_orm_mappers():
     """
     initialize orm mappings
     """
-    from reception.domain.entity.room import Room as ReceptionRoomEntity
     from reception.domain.entity.reservation import Reservation as ReceptionReservationEntity
+    from reception.domain.entity.room import Room as ReceptionRoomEntity
 
     mapper_registry.map_imperatively(
         ReceptionRoomEntity,

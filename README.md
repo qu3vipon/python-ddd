@@ -21,10 +21,6 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
 
 ### Requirements
 - Python 3.10+
-- SQLAlchemy 1.4+
-- fastapi
-- uvicorn
-- pydantic
 
 ## Implementation
 ### ERD

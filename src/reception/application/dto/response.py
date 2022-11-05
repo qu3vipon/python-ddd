@@ -8,8 +8,8 @@ from pydantic import BaseModel
 from reception.domain.entity.reservation import Reservation
 from reception.domain.entity.room import Room
 from reception.domain.value_object.guest import Guest, mobile_type
-from shared_kernel.domain.value_object import ReservationStatus, RoomStatus
 from shared_kernel.application.dto import BaseResponse
+from shared_kernel.domain.value_object import ReservationStatus, RoomStatus
 
 
 class RoomDTO(BaseModel):
