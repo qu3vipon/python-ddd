@@ -439,5 +439,9 @@ class ReservationDTO(BaseModel):
 
 class ReservationResponse(BaseResponse):
     result: ReservationDTO
+```
 
+#### Run server
+```shell
+$ uvicorn shared_kernel.infra.fastapi.main:app --reload
 ```
