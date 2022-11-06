@@ -40,7 +40,7 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
   - Cancel a reservation
   - Check-in & Check-out
 
-Check-in & check-out domains can also be isolated, but let's say that reception handles it together for now.
+Reservation and reception can also be isolated, but let's say that reception handles it altogether for now.
 
 ### Project Structure
 ```tree
