@@ -38,7 +38,7 @@ class ReservationCommandUseCase:
         )
         self.reservation_repo.add(reservation)
         self.reservation_repo.commit()
-
+        self.reservation_repo.refresh(reservation)
         return reservation
 
     def update_guest_info(self, reservation_number: str, request: UpdateGuestRequest) -> Reservation:

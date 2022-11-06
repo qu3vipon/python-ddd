@@ -41,5 +41,3 @@ class ReservationStatus(ValueObject, str, Enum):
 
     def in_progress(self) -> bool:
         return self == ReservationStatus.IN_PROGRESS
-
-
