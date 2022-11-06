@@ -6,15 +6,15 @@ from reception.domain.value_object.guest import mobile_type
 
 
 class CheckInService:
-    EARLY_CHECK_IN_OFFSET: int = 3
-    LATE_CHECK_IN_OFFSET: int = 6
+    _EARLY_CHECK_IN_OFFSET: int = 3
+    _LATE_CHECK_IN_OFFSET: int = 6
 
     @staticmethod
     def _is_valid_date(reservation: Reservation) -> bool:
         return (
-            reservation.date_in - timedelta(hours=CheckInService.EARLY_CHECK_IN_OFFSET)
+            reservation.date_in - timedelta(hours=CheckInService._EARLY_CHECK_IN_OFFSET)
             <= datetime.utcnow()
-            <= reservation.date_out - timedelta(hours=CheckInService.LATE_CHECK_IN_OFFSET)
+            <= reservation.date_out - timedelta(hours=CheckInService._LATE_CHECK_IN_OFFSET)
         )
 
     @staticmethod
