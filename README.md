@@ -19,8 +19,6 @@ Using DDD makes it easy to maintain collaboration with domain experts, not only 
 - Don't go too deep into topics like event sourcing.
 - Considering the running curve, this project consists only of essential DDD components.
 
-### Requirements
-- Python 3.10+
 
 ## Implementation
 ### ERD
@@ -441,3 +439,7 @@ class ReservationResponse(BaseResponse):
 ```shell
 $ uvicorn shared_kernel.infra.fastapi.main:app --reload
 ```
+
+#### Requirements
+- Python 3.10+
+  - 3.10 and lower versions can also take the key concepts
