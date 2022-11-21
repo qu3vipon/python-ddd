@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 
 from reception.application.exception.reservation import ReservationStatusError
 from reception.application.exception.room import RoomStatusError
@@ -25,7 +24,7 @@ class Reservation(AggregateRoot):
     _number: str = field(init=False)
     _status: str = field(init=False)
     _guest_mobile: str = field(init=False)
-    _guest_name: Optional[str] = field(init=False)
+    _guest_name: str | None = field(init=False)
 
     @classmethod
     def make(cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest) -> Reservation:

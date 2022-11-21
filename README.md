@@ -110,7 +110,7 @@ class Reservation(AggregateRoot):
     _number: str = field(init=False)
     _status: str = field(init=False)
     _guest_mobile: str = field(init=False)
-    _guest_name: Optional[str] = field(init=False)
+    _guest_name: str | None = field(init=False)
 ```
 
 - Entity mix-in <br>
@@ -262,7 +262,7 @@ Because entities do not need to know the implementation of the database table, l
 @dataclass(eq=False, slots=True)
 class Room(Entity):
     number: str
-    status: Optional[RoomStatus]
+    status: RoomStatus | None
   
     _status: str = field(init=False)
 ```
@@ -280,7 +280,7 @@ mobile_type = constr(regex=r"\+[0-9]{2,3}-[0-9]{2}-[0-9]{4}-[0-9]{4}")
 @dataclass(slots=True)
 class Guest(ValueObject):
     mobile: mobile_type
-    name: Optional[str] = None
+    name: str | None = None
 ```
 
 A value object is an object that matter only as the combination of its attributes.
@@ -296,7 +296,7 @@ class ValueObject:
         return self.value,
   
     @classmethod
-    def from_value(cls, value: Any) -> Optional[ValueObjectType]:
+    def from_value(cls, value: Any) -> ValueObjectType | None:
         if isinstance(cls, EnumMeta):
             for item in cls:
                 if item.value == value:
@@ -339,7 +339,7 @@ class ReservationNumber(ValueObject):
 @dataclass(slots=True)
 class Guest(ValueObject):
     mobile: mobile_type
-    name: Optional[str] = None
+    name: str | None = None
 
     def __composite_values__(self):
         return self.mobile, self.name
@@ -382,7 +382,7 @@ class ReservationQueryUseCase:
     def get_reservation(self, reservation_number: str) -> Reservation:
         reservation_number = ReservationNumber.from_value(reservation_number)
 
-        reservation: Optional[Reservation] = (
+        reservation: Reservation | None = (
             self.reservation_repo.get_reservation_by_reservation_number(reservation_number=reservation_number)
         )
         if not reservation:
@@ -394,7 +394,7 @@ class ReservationQueryUseCase:
 - [infra/repository/repository.py](src/reception/infra/repository.py)
 ```python
 class ReservationRDBRepository(RDBRepository):
-    def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Optional[Reservation]:
+    def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Reservation | None:
         return self.session.query(Reservation).filter_by(reservation_number=reservation_number).first()
 ```
 

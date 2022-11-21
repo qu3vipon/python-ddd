@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import Depends
 
 from reception.application.exception.reservation import ReservationNotFoundError
@@ -18,7 +16,7 @@ class ReservationQueryUseCase:
     def get_reservation(self, reservation_number: str) -> Reservation:
         reservation_number = ReservationNumber.from_value(reservation_number)
 
-        reservation: Optional[Reservation] = (
+        reservation: Reservation | None = (
             self.reservation_repo.get_reservation_by_reservation_number(reservation_number=reservation_number)
         )
         if not reservation:

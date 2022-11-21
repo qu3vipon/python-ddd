@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import Depends
 
 from reception.application.dto.request import CreateReservationRequest, UpdateGuestRequest
@@ -24,7 +22,7 @@ class ReservationCommandUseCase:
         self.check_in_service = check_in_service
 
     def make_reservation(self, request: CreateReservationRequest) -> Reservation:
-        room: Optional[Room] = (
+        room: Room | None = (
             self.reservation_repo.get_room_by_room_number(room_number=request.room_number)
         )
         if not room:

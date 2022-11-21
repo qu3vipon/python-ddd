@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -26,7 +25,7 @@ class RoomDTO(BaseModel):
 
 class GuestDTO(BaseModel):
     mobile: mobile_type
-    name: Optional[str] = None
+    name: str | None = None
 
     @classmethod
     def from_entity(cls, guest: Guest) -> GuestDTO:
