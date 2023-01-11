@@ -15,9 +15,6 @@ class RDBRepository:
     def commit(self) -> None:
         self.session.commit()
 
-    def refresh(self, instance: EntityType) -> None:
-        self.session.refresh(instance)
-
 
 class RDBReadRepository:
     def __init__(self, session=Depends(get_db)):

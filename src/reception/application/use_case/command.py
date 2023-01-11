@@ -36,7 +36,6 @@ class ReservationCommandUseCase:
         )
         self.reservation_repo.add(reservation)
         self.reservation_repo.commit()
-        self.reservation_repo.refresh(reservation)
         return reservation
 
     def update_guest_info(self, reservation_number: str, request: UpdateGuestRequest) -> Reservation:
@@ -47,7 +46,6 @@ class ReservationCommandUseCase:
 
         self.reservation_repo.add(reservation)
         self.reservation_repo.commit()
-        self.reservation_repo.refresh(reservation)
         return reservation
 
     def check_in(self, reservation_number: str, mobile: mobile_type) -> Reservation:
@@ -57,7 +55,6 @@ class ReservationCommandUseCase:
 
         self.reservation_repo.add(reservation)
         self.reservation_repo.commit()
-        self.reservation_repo.refresh(reservation)
         return reservation
 
     def check_out(self, reservation_number: str) -> Reservation:
@@ -67,7 +64,6 @@ class ReservationCommandUseCase:
 
         self.reservation_repo.add(reservation)
         self.reservation_repo.commit()
-        self.reservation_repo.refresh(reservation)
         return reservation
 
     def cancel(self, reservation_number: str) -> Reservation:
@@ -77,5 +73,4 @@ class ReservationCommandUseCase:
 
         self.reservation_repo.add(reservation)
         self.reservation_repo.commit()
-        self.reservation_repo.refresh(reservation)
         return reservation
