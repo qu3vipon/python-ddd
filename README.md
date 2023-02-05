@@ -1,5 +1,9 @@
 # Python Domain-Driven-Design(DDD) Example
 
+## Updates
+- Added `Inversion of Control` & `db session management`(Feb 5, 2023)
+- Initial Update(Oct 26, 2022)
+
 ## Intro
 I've adopted the DDD pattern for my recent FastAPI project.
 DDD makes it easier to implement complex domain problems.
@@ -231,7 +235,7 @@ def init_orm_mappers():
       "_status": reservation_table.c.status,
       "_guest_mobile": reservation_table.c.guest_mobile,
       "_guest_name": reservation_table.c.guest_name,
-      "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc),
+      "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc, lazy="joined"),
       "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
       "status": composite(ReservationStatus.from_value, reservation_table.c.status),
       "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
@@ -348,14 +352,16 @@ class Guest(ValueObject):
 If a value object consists of more than one column, you must override the `__composite_values__()` as shown above.
 
 #### Dependency Injection
-FastAPI's `Depends` makes it easy to implement **Dependency Injection** between different layers.
+FastAPI's `Depends` makes it easy to implement **Dependency Injection** between layers. 
+And you can achieve [Inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) with [Dependency Injector](https://python-dependency-injector.ets-labs.org/index.html). 
 
 - [presentation/rest/reception.py](src/reception/presentation/rest/reception.py)
 ```python
 @router.get("/reservations/{reservation_number}")
+@inject
 def get_reservation(
     reservation_number: str,
-    reservation_query: ReservationQueryUseCase = Depends(ReservationQueryUseCase),
+    reservation_query: ReservationQueryUseCase = Depends(Provide[AppContainer.reception.reservation_query]),
 ):
     try:
         reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
@@ -375,16 +381,22 @@ def get_reservation(
 class ReservationQueryUseCase:
     def __init__(
         self,
-        reservation_repo: ReservationRDBRepository = Depends(ReservationRDBRepository),
+        reservation_repo: ReservationRDBRepository,
+        db_session: Callable[[], ContextManager[Session]],
     ):
         self.reservation_repo = reservation_repo
+        self.db_session = db_session
 
     def get_reservation(self, reservation_number: str) -> Reservation:
         reservation_number = ReservationNumber.from_value(reservation_number)
 
-        reservation: Reservation | None = (
-            self.reservation_repo.get_reservation_by_reservation_number(reservation_number=reservation_number)
-        )
+        with self.db_session() as session:
+            reservation: Reservation | None = (
+                self.reservation_repo.get_reservation_by_reservation_number(
+                    session=session, reservation_number=reservation_number
+                )
+            )
+
         if not reservation:
             raise ReservationNotFoundError
 
@@ -394,8 +406,9 @@ class ReservationQueryUseCase:
 - [infra/repository/repository.py](src/reception/infra/repository.py)
 ```python
 class ReservationRDBRepository(RDBRepository):
-    def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Reservation | None:
-        return self.session.query(Reservation).filter_by(reservation_number=reservation_number).first()
+    @staticmethod
+    def get_reservation_by_reservation_number(session, reservation_number: ReservationNumber) -> Reservation | None:
+        return session.query(Reservation).filter_by(reservation_number=reservation_number).first()
 ```
 
 #### DTO(Data Transfer Object)

@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists
@@ -15,11 +17,12 @@ def get_engine():
 
 
 engine = get_engine()
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionFactory = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 
 
-def get_db():
-    db = SessionLocal()
+@contextmanager
+def get_db_session():
+    db = SessionFactory()
     try:
         yield db
     finally:

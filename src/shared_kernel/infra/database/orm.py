@@ -54,7 +54,7 @@ def init_orm_mappers():
         ReceptionReservationEntity,
         reservation_table,
         properties={
-            "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc),
+            "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc, lazy="joined"),
             "_number": reservation_table.c.number,
             "_status": reservation_table.c.status,
             "_guest_mobile": reservation_table.c.guest_mobile,

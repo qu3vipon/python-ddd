@@ -1,3 +1,4 @@
+from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Body, Depends, HTTPException
 from starlette import status
 
@@ -10,6 +11,7 @@ from reception.application.use_case.command import ReservationCommandUseCase
 from reception.application.use_case.query import ReservationQueryUseCase
 from reception.domain.entity.reservation import Reservation
 from shared_kernel.application.dto import BaseResponse
+from shared_kernel.infra.container import AppContainer
 
 router = APIRouter(prefix="/reception")
 
@@ -22,9 +24,10 @@ router = APIRouter(prefix="/reception")
         status.HTTP_409_CONFLICT: {"model": BaseResponse},
     }
 )
+@inject
 def post_reservations(
     create_reservation_request: CreateReservationRequest = Body(),
-    reservation_command: ReservationCommandUseCase = Depends(ReservationCommandUseCase),
+    reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
 ):
     try:
         reservation: Reservation = reservation_command.make_reservation(request=create_reservation_request)
@@ -58,9 +61,10 @@ def post_reservations(
         status.HTTP_404_NOT_FOUND: {"model": BaseResponse},
     }
 )
+@inject
 def get_reservation(
     reservation_number: str,
-    reservation_query: ReservationQueryUseCase = Depends(ReservationQueryUseCase),
+    reservation_query: ReservationQueryUseCase = Depends(Provide[AppContainer.reception.reservation_query]),
 ):
     try:
         reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
@@ -85,10 +89,11 @@ def get_reservation(
         status.HTTP_409_CONFLICT: {"model": BaseResponse},
     }
 )
+@inject
 def patch_reservation(
     reservation_number: str,
     update_quest_request: UpdateGuestRequest = Body(),
-    reservation_command: ReservationCommandUseCase = Depends(ReservationCommandUseCase),
+    reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
 ):
     try:
         reservation: Reservation = reservation_command.update_guest_info(
@@ -126,10 +131,11 @@ def patch_reservation(
         status.HTTP_409_CONFLICT: {"model": BaseResponse},
     }
 )
+@inject
 def post_reservation_check_in(
     reservation_number: str,
     check_in_request: CheckInRequest = Body(),
-    reservation_command: ReservationCommandUseCase = Depends(ReservationCommandUseCase),
+    reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
 ):
     try:
         reservation: Reservation = reservation_command.check_in(
@@ -176,9 +182,10 @@ def post_reservation_check_in(
         status.HTTP_409_CONFLICT: {"model": BaseResponse},
     }
 )
+@inject
 def post_reservation_check_out(
     reservation_number: str,
-    reservation_command: ReservationCommandUseCase = Depends(ReservationCommandUseCase),
+    reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
 ):
     try:
         reservation: Reservation = reservation_command.check_out(reservation_number=reservation_number)
@@ -205,9 +212,10 @@ def post_reservation_check_out(
 
 
 @router.post("/reservations/{reservation_number}/cancel")
+@inject
 def post_reservation_cancel(
     reservation_number: str,
-    reservation_command: ReservationCommandUseCase = Depends(ReservationCommandUseCase),
+    reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
 ):
     try:
         reservation: Reservation = reservation_command.cancel(reservation_number=reservation_number)

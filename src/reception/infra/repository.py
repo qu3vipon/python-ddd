@@ -5,8 +5,10 @@ from shared_kernel.infra.database.repository import RDBRepository
 
 
 class ReservationRDBRepository(RDBRepository):
-    def get_reservation_by_reservation_number(self, reservation_number: ReservationNumber) -> Reservation | None:
-        return self.session.query(Reservation).filter_by(reservation_number=reservation_number).first()
+    @staticmethod
+    def get_reservation_by_reservation_number(session, reservation_number: ReservationNumber) -> Reservation | None:
+        return session.query(Reservation).filter_by(reservation_number=reservation_number).first()
 
-    def get_room_by_room_number(self, room_number: str) -> Room | None:
-        return self.session.query(Room).filter_by(number=room_number).first()
+    @staticmethod
+    def get_room_by_room_number(session, room_number: str) -> Room | None:
+        return session.query(Room).filter_by(number=room_number).first()

@@ -1,4 +1,6 @@
-from fastapi import Depends
+from typing import Callable, ContextManager
+
+from sqlalchemy.orm import Session
 
 from reception.application.dto.request import CreateReservationRequest, UpdateGuestRequest
 from reception.application.exception.room import RoomNotFoundError
@@ -13,18 +15,21 @@ from reception.infra.repository import ReservationRDBRepository
 class ReservationCommandUseCase:
     def __init__(
         self,
-        reservation_repo: ReservationRDBRepository = Depends(ReservationRDBRepository),
-        reservation_query: ReservationQueryUseCase = Depends(ReservationQueryUseCase),
-        check_in_service: CheckInService = Depends(CheckInService),
+        reservation_repo: ReservationRDBRepository,
+        reservation_query: ReservationQueryUseCase,
+        check_in_service: CheckInService,
+        db_session: Callable[[], ContextManager[Session]],
     ):
         self.reservation_repo = reservation_repo
         self.reservation_query = reservation_query
         self.check_in_service = check_in_service
+        self.db_session = db_session
 
     def make_reservation(self, request: CreateReservationRequest) -> Reservation:
-        room: Room | None = (
-            self.reservation_repo.get_room_by_room_number(room_number=request.room_number)
-        )
+        with self.db_session() as session:
+            room: Room | None = (
+                self.reservation_repo.get_room_by_room_number(session=session, room_number=request.room_number)
+            )
         if not room:
             raise RoomNotFoundError
 
@@ -34,8 +39,9 @@ class ReservationCommandUseCase:
             date_out=request.date_out,
             guest=Guest(mobile=request.guest_mobile, name=request.guest_name)
         )
-        self.reservation_repo.add(reservation)
-        self.reservation_repo.commit()
+        with self.db_session() as session:
+            self.reservation_repo.add(session=session, instance=reservation)
+            self.reservation_repo.commit(session=session)
         return reservation
 
     def update_guest_info(self, reservation_number: str, request: UpdateGuestRequest) -> Reservation:
@@ -44,33 +50,34 @@ class ReservationCommandUseCase:
         guest: Guest = Guest(mobile=request.guest_mobile, name=request.guest_name)
         reservation.change_guest(guest=guest)
 
-        self.reservation_repo.add(reservation)
-        self.reservation_repo.commit()
+        with self.db_session() as session:
+            self.reservation_repo.add(session=session, instance=reservation)
+            self.reservation_repo.commit(session=session)
         return reservation
 
     def check_in(self, reservation_number: str, mobile: mobile_type) -> Reservation:
         reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
-
         self.check_in_service.check_in(reservation=reservation, mobile=mobile)
 
-        self.reservation_repo.add(reservation)
-        self.reservation_repo.commit()
+        with self.db_session() as session:
+            self.reservation_repo.add(session=session, instance=reservation)
+            self.reservation_repo.commit(session=session)
         return reservation
 
     def check_out(self, reservation_number: str) -> Reservation:
         reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
-
         reservation.check_out()
 
-        self.reservation_repo.add(reservation)
-        self.reservation_repo.commit()
+        with self.db_session() as session:
+            self.reservation_repo.add(session=session, instance=reservation)
+            self.reservation_repo.commit(session=session)
         return reservation
 
     def cancel(self, reservation_number: str) -> Reservation:
         reservation: Reservation = self.reservation_query.get_reservation(reservation_number=reservation_number)
-
         reservation.cancel()
 
-        self.reservation_repo.add(reservation)
-        self.reservation_repo.commit()
+        with self.db_session() as session:
+            self.reservation_repo.add(session=session, instance=reservation)
+            self.reservation_repo.commit(session=session)
         return reservation
