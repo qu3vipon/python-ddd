@@ -1,7 +1,7 @@
 # Python Domain-Driven-Design(DDD) Example
 
 ## Updates
-- Added `Inversion of Control` & `db session management`(Feb 5, 2023)
+- Added `Inversion of Control` & `transaction control`(Feb 5, 2023)
 - Initial Update(Oct 26, 2022)
 
 ## Intro

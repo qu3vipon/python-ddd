@@ -16,5 +16,7 @@ class DisplayQueryUseCase:
         room_status: RoomStatus = RoomStatus.from_value(room_status)
 
         with self.db_session() as session:
-            rooms: Query = self.room_repo.get_rooms_by_status(session=session, room_status=room_status)
-        return list(rooms)
+            rooms: List[Room] = list(
+                self.room_repo.get_rooms_by_status(session=session, room_status=room_status)
+            )
+        return rooms
