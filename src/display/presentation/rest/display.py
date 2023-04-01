@@ -18,7 +18,7 @@ def get_rooms(
     request: GetRoomRequest = Depends(),
     display_query: DisplayQueryUseCase = Depends(Provide[AppContainer.display.query]),
 ):
-    rooms: List[Room] = display_query.get_rooms(room_status=request.room_status)
+    rooms: List[Room] = display_query.get_rooms(room_status=request.status)
     return RoomResponse(
         detail="ok",
         result=[RoomSchema.from_orm(room) for room in rooms]
