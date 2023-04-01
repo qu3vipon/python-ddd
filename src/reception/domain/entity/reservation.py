@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from reception.application.exception.reservation import ReservationStatusError
-from reception.application.exception.room import RoomStatusError
+from reception.domain.exception.reservation import ReservationStatusException
+from reception.domain.exception.room import RoomStatusException
 from reception.domain.entity.room import Room
 from reception.domain.value_object.guest import Guest
 from reception.domain.value_object.reservation import ReservationNumber
@@ -40,26 +40,26 @@ class Reservation(AggregateRoot):
 
     def cancel(self):
         if not self.status.in_progress():
-            raise ReservationStatusError
+            raise ReservationStatusException
 
         self.status = ReservationStatus.CANCELLED
         self.room.status = RoomStatus.AVAILABLE
 
     def check_in(self):
         if not self.room.status.is_reserved():
-            raise RoomStatusError
+            raise RoomStatusException
 
         if not self.status.in_progress():
-            raise ReservationStatusError
+            raise ReservationStatusException
 
         self.room.status = RoomStatus.OCCUPIED
 
     def check_out(self):
         if not self.room.status.is_occupied():
-            raise RoomStatusError
+            raise RoomStatusException
 
         if not self.status.in_progress():
-            raise ReservationStatusError
+            raise ReservationStatusException
 
         self.status = ReservationStatus.COMPLETE
         self.room.status = RoomStatus.AVAILABLE

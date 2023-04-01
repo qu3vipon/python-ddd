@@ -2,8 +2,8 @@ from typing import Callable, ContextManager
 
 from sqlalchemy.orm import Session
 
-from reception.presentation.rest.schema import CreateReservationRequest, UpdateGuestRequest
-from reception.application.exception.room import RoomNotFoundError
+from reception.presentation.rest.schema.request import CreateReservationRequest, UpdateGuestRequest
+from reception.domain.exception.room import RoomNotFoundException
 from reception.application.use_case.query import ReservationQueryUseCase
 from reception.domain.entity.reservation import Reservation
 from reception.domain.entity.room import Room
@@ -31,7 +31,7 @@ class ReservationCommandUseCase:
                 self.reservation_repo.get_room_by_room_number(session=session, room_number=request.room_number)
             )
         if not room:
-            raise RoomNotFoundError
+            raise RoomNotFoundException
 
         reservation = Reservation.make(
             room=room,

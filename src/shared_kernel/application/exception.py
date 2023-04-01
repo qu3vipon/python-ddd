@@ -1,2 +1,2 @@
-class BaseError(Exception):
-    message: str = ""
+class BaseMsgException(Exception):
+    message: str

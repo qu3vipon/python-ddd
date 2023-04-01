@@ -2,14 +2,14 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Body, Depends, HTTPException
 from starlette import status
 
-from reception.presentation.rest.schema import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
-from reception.presentation.rest.schema import ReservationDTO, ReservationResponse
-from reception.application.exception.check_in import CheckInAuthenticationError, CheckInDateError
-from reception.application.exception.reservation import ReservationNotFoundError, ReservationStatusError
-from reception.application.exception.room import RoomNotFoundError, RoomStatusError
 from reception.application.use_case.command import ReservationCommandUseCase
 from reception.application.use_case.query import ReservationQueryUseCase
+from reception.domain.exception.check_in import CheckInAuthenticationException, CheckInDateException
+from reception.domain.exception.reservation import ReservationNotFoundException, ReservationStatusException
+from reception.domain.exception.room import RoomNotFoundException, RoomStatusException
 from reception.domain.entity.reservation import Reservation
+from reception.presentation.rest.schema.request import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
+from reception.presentation.rest.schema.response import ReservationSchema, ReservationResponse
 from shared_kernel.application.dto import BaseResponse
 from shared_kernel.infra.container import AppContainer
 
@@ -31,17 +31,17 @@ def post_reservations(
 ):
     try:
         reservation: Reservation = reservation_command.make_reservation(request=create_reservation_request)
-    except RoomNotFoundError as e:
+    except RoomNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusError as e:
+    except RoomStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
         )
-    except ReservationStatusError as e:
+    except ReservationStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -49,7 +49,7 @@ def post_reservations(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build(reservation=reservation),
+        result=ReservationSchema.build(reservation=reservation),
     )
 
 
@@ -68,7 +68,7 @@ def get_reservation(
 ):
     try:
         reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
-    except ReservationNotFoundError as e:
+    except ReservationNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
@@ -76,7 +76,7 @@ def get_reservation(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build(reservation=reservation),
+        result=ReservationSchema.build(reservation=reservation),
     )
 
 
@@ -99,17 +99,17 @@ def patch_reservation(
         reservation: Reservation = reservation_command.update_guest_info(
             reservation_number=reservation_number, request=update_quest_request
         )
-    except ReservationNotFoundError as e:
+    except ReservationNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusError as e:
+    except RoomStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
         )
-    except ReservationStatusError as e:
+    except ReservationStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -117,7 +117,7 @@ def patch_reservation(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build(reservation=reservation),
+        result=ReservationSchema.build(reservation=reservation),
     )
 
 
@@ -141,27 +141,27 @@ def post_reservation_check_in(
         reservation: Reservation = reservation_command.check_in(
             reservation_number=reservation_number, mobile=check_in_request.mobile
         )
-    except CheckInDateError as e:
+    except CheckInDateException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.message,
         )
-    except CheckInAuthenticationError as e:
+    except CheckInAuthenticationException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.message,
         )
-    except ReservationNotFoundError as e:
+    except ReservationNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusError as e:
+    except RoomStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
         )
-    except ReservationStatusError as e:
+    except ReservationStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -169,7 +169,7 @@ def post_reservation_check_in(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build(reservation=reservation),
+        result=ReservationSchema.build(reservation=reservation),
     )
 
 
@@ -189,17 +189,17 @@ def post_reservation_check_out(
 ):
     try:
         reservation: Reservation = reservation_command.check_out(reservation_number=reservation_number)
-    except ReservationNotFoundError as e:
+    except ReservationNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusError as e:
+    except RoomStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
         )
-    except ReservationStatusError as e:
+    except ReservationStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -207,7 +207,7 @@ def post_reservation_check_out(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build(reservation=reservation),
+        result=ReservationSchema.build(reservation=reservation),
     )
 
 
@@ -219,17 +219,17 @@ def post_reservation_cancel(
 ):
     try:
         reservation: Reservation = reservation_command.cancel(reservation_number=reservation_number)
-    except ReservationNotFoundError as e:
+    except ReservationNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusError as e:
+    except RoomStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
         )
-    except ReservationStatusError as e:
+    except ReservationStatusException as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -237,5 +237,5 @@ def post_reservation_cancel(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build(reservation=reservation),
+        result=ReservationSchema.build(reservation=reservation),
     )

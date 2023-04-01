@@ -2,7 +2,7 @@ from typing import Callable, ContextManager
 
 from sqlalchemy.orm import Session
 
-from reception.application.exception.reservation import ReservationNotFoundError
+from reception.domain.exception.reservation import ReservationNotFoundException
 from reception.domain.entity.reservation import Reservation
 from reception.domain.value_object.reservation import ReservationNumber
 from reception.infra.repository import ReservationRDBRepository
@@ -28,6 +28,6 @@ class ReservationQueryUseCase:
             )
 
         if not reservation:
-            raise ReservationNotFoundError
+            raise ReservationNotFoundException
 
         return reservation

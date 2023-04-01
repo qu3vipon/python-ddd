@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from reception.application.exception.room import RoomStatusError
+from reception.domain.exception.room import RoomStatusException
 from shared_kernel.domain.entity import Entity
 from shared_kernel.domain.value_object import RoomStatus
 
@@ -14,6 +14,6 @@ class Room(Entity):
 
     def reserve(self):
         if not self.status.is_available():
-            raise RoomStatusError
+            raise RoomStatusException
 
         self.status = RoomStatus.RESERVED

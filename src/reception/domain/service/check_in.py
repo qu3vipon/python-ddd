@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from reception.application.exception.check_in import CheckInAuthenticationError, CheckInDateError
+from reception.domain.exception.check_in import CheckInAuthenticationException, CheckInDateException
 from reception.domain.entity.reservation import Reservation
 from reception.domain.value_object.guest import mobile_type
 
@@ -24,9 +24,9 @@ class CheckInService:
 
     def check_in(self, reservation: Reservation, mobile: str) -> None:
         if not self._is_valid_date(reservation=reservation):
-            raise CheckInDateError
+            raise CheckInDateException
 
         if not self._is_valid_guest(reservation=reservation, mobile=mobile):
-            raise CheckInAuthenticationError
+            raise CheckInAuthenticationException
 
         reservation.check_in()
