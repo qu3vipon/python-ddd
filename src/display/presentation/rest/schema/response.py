@@ -6,7 +6,7 @@ from shared_kernel.application.dto import BaseResponse
 from shared_kernel.domain.value_object import RoomStatus
 
 
-class RoomDTO(BaseModel):
+class RoomSchema(BaseModel):
     id: int
     number: str
     status: RoomStatus
@@ -18,4 +18,4 @@ class RoomDTO(BaseModel):
 
 
 class RoomResponse(BaseResponse):
-    result: List[RoomDTO]
+    result: List[RoomSchema]

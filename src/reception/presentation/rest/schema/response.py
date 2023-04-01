@@ -11,49 +11,49 @@ from shared_kernel.application.dto import BaseResponse
 from shared_kernel.domain.value_object import ReservationStatus, RoomStatus
 
 
-class RoomDTO(BaseModel):
+class RoomSchema(BaseModel):
     number: str
     status: RoomStatus
 
     @classmethod
-    def from_entity(cls, room: Room) -> RoomDTO:
+    def from_entity(cls, room: Room) -> RoomSchema:
         return cls(
             number=room.number,
             status=room.status,
         )
 
 
-class GuestDTO(BaseModel):
+class GuestSchema(BaseModel):
     mobile: mobile_type
     name: str | None = None
 
     @classmethod
-    def from_entity(cls, guest: Guest) -> GuestDTO:
+    def from_entity(cls, guest: Guest) -> GuestSchema:
         return cls(
             mobile=guest.mobile,
             name=guest.name,
         )
 
 
-class ReservationDTO(BaseModel):
-    room: RoomDTO
+class ReservationSchema(BaseModel):
+    room: RoomSchema
     reservation_number: str
     status: ReservationStatus
     date_in: datetime
     date_out: datetime
-    guest: GuestDTO
+    guest: GuestSchema
 
     @classmethod
-    def build_result(cls, reservation: Reservation) -> ReservationDTO:
+    def build(cls, reservation: Reservation) -> ReservationSchema:
         return cls(
-            room=RoomDTO.from_entity(reservation.room),
+            room=RoomSchema.from_entity(reservation.room),
             reservation_number=reservation.reservation_number.value,
             status=reservation.status,
             date_in=reservation.date_in,
             date_out=reservation.date_out,
-            guest=GuestDTO.from_entity(reservation.guest),
+            guest=GuestSchema.from_entity(reservation.guest),
         )
 
 
 class ReservationResponse(BaseResponse):
-    result: ReservationDTO
+    result: ReservationSchema

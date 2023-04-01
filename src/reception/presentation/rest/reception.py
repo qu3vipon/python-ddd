@@ -2,8 +2,8 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Body, Depends, HTTPException
 from starlette import status
 
-from reception.application.dto.request import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
-from reception.application.dto.response import ReservationDTO, ReservationResponse
+from reception.presentation.rest.schema import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
+from reception.presentation.rest.schema import ReservationDTO, ReservationResponse
 from reception.application.exception.check_in import CheckInAuthenticationError, CheckInDateError
 from reception.application.exception.reservation import ReservationNotFoundError, ReservationStatusError
 from reception.application.exception.room import RoomNotFoundError, RoomStatusError
@@ -49,7 +49,7 @@ def post_reservations(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
+        result=ReservationDTO.build(reservation=reservation),
     )
 
 
@@ -76,7 +76,7 @@ def get_reservation(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
+        result=ReservationDTO.build(reservation=reservation),
     )
 
 
@@ -117,7 +117,7 @@ def patch_reservation(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
+        result=ReservationDTO.build(reservation=reservation),
     )
 
 
@@ -169,7 +169,7 @@ def post_reservation_check_in(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
+        result=ReservationDTO.build(reservation=reservation),
     )
 
 
@@ -207,7 +207,7 @@ def post_reservation_check_out(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
+        result=ReservationDTO.build(reservation=reservation),
     )
 
 
@@ -237,5 +237,5 @@ def post_reservation_cancel(
 
     return ReservationResponse(
         detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
+        result=ReservationDTO.build(reservation=reservation),
     )

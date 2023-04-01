@@ -49,9 +49,6 @@ Reservation and reception can also be isolated, but let's say that reception han
 src
 ├── display
 │   ├── application
-│   │   ├── dto
-│   │   │   ├── request
-│   │   │   └── response
 │   │   ├── exception
 │   │   └── use_case
 │   │       ├── query
@@ -66,6 +63,9 @@ src
 │   └── presentation
 │       ├── grpc
 │       └── rest
+│           └── schema
+│                ├── request
+│                └── response
 ├── reception
 │   ├── application
 │   ├── domain
@@ -356,6 +356,7 @@ FastAPI's `Depends` makes it easy to implement **Dependency Injection** between 
 And you can achieve [Inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) with [Dependency Injector](https://python-dependency-injector.ets-labs.org/index.html). 
 
 - [presentation/rest/reception.py](src/reception/presentation/rest/reception.py)
+
 ```python
 @router.get("/reservations/{reservation_number}")
 @inject
@@ -364,16 +365,16 @@ def get_reservation(
     reservation_query: ReservationQueryUseCase = Depends(Provide[AppContainer.reception.reservation_query]),
 ):
     try:
-        reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
+      reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
     except ReservationNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=e.message,
-        )
+      raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=e.message,
+      )
     return ReservationResponse(
-        detail="ok",
-        result=ReservationDTO.build_result(reservation=reservation),
-    )
+      detail="ok",
+      result=ReservationSchema.build(reservation=reservation),
+  )
 ```
 
 - [application/use_case/query.py](src/reception/application/use_case/query.py)
@@ -411,9 +412,9 @@ class ReservationRDBRepository(RDBRepository):
         return session.query(Reservation).filter_by(reservation_number=reservation_number).first()
 ```
 
-#### DTO(Data Transfer Object)
-Pydantic makes it easy to implement the DTO used for request and response.
-- [application/dto/request.py](src/reception/application/dto/request.py)
+#### Schema
+Pydantic makes it easy to implement the request and response schema.
+- [presentation/rest/schema/request.py](src/reception/presentation/rest/schema/request.py)
 ```python
 class CreateReservationRequest(BaseModel):
     room_number: str
@@ -423,29 +424,29 @@ class CreateReservationRequest(BaseModel):
     guest_name: str | None = None
 ```
 
-- [application/dto/response.py](src/reception/application/dto/response.py)
+- [application/Schema/response.py](src/reception/presentation/rest/schema/response.py)
 ```python
-class ReservationDTO(BaseModel):
-    room: RoomDTO
+class ReservationSchema(BaseModel):
+    room: RoomSchema
     reservation_number: str
     status: ReservationStatus
     date_in: datetime
     date_out: datetime
-    guest: GuestDTO
+    guest: GuestSchema
 
     @classmethod
-    def build_result(cls, reservation: Reservation) -> ReservationDTO:
+    def build(cls, reservation: Reservation) -> ReservationSchema:
         return cls(
-            room=RoomDTO.from_entity(reservation.room),
+            room=RoomSchema.from_entity(reservation.room),
             reservation_number=reservation.reservation_number.value,
             status=reservation.status,
             date_in=reservation.date_in,
             date_out=reservation.date_out,
-            guest=GuestDTO.from_entity(reservation.guest),
+            guest=GuestSchema.from_entity(reservation.guest),
         )
 
 class ReservationResponse(BaseResponse):
-    result: ReservationDTO
+    result: ReservationSchema
 ```
 
 #### Run server
