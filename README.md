@@ -47,14 +47,14 @@ Reservation and reception can also be isolated, but let's say that reception han
 ### Project Structure
 ```tree
 src
-├── display
+├── reception
 │   ├── application
-│   │   ├── exception
 │   │   └── use_case
 │   │       ├── query
 │   │       └── command
 │   ├── domain
 │   │   ├── entity
+│   │   ├── exception
 │   │   ├── service
 │   │   └── value_object
 │   ├── infra
@@ -66,7 +66,7 @@ src
 │           └── schema
 │                ├── request
 │                └── response
-├── reception
+├── display
 │   ├── application
 │   ├── domain
 │   ├── infra
