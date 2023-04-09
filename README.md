@@ -1,9 +1,5 @@
 # Python Domain-Driven-Design(DDD) Example
 
-## Updates
-- Added `Inversion of Control` & `transaction control`(Feb 5, 2023)
-- Initial Update(Oct 26, 2022)
-
 ## Intro
 I've adopted the DDD pattern for my recent FastAPI project.
 DDD makes it easier to implement complex domain problems.
