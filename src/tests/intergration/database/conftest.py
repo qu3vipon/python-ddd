@@ -8,7 +8,7 @@ from shared_kernel.infra.database.orm import metadata
 
 @pytest.fixture(scope="session")
 def test_db():
-    test_db_url = "mysql+pymysql://admin:ddd-hotel@127.0.0.1:3306/test"
+    test_db_url = "mysql+pymysql://admin:ddd-hotel@127.0.0.1:3306/ddd-hotel"
     if not database_exists(test_db_url):
         create_database(test_db_url)
 
@@ -42,3 +42,14 @@ def test_session(test_db):
     session.close()
     trans.rollback()  # roll back to the SAVEPOINT
     connection.close()
+
+
+@pytest.fixture
+def room_display(test_session):
+    from display.domain.entity.room import Room
+    from shared_kernel.domain.value_object import RoomStatus
+
+    room = Room(number="New", room_status=RoomStatus.AVAILABLE, image_url="image_url")
+    test_session.add(room)
+    test_session.commit()
+    return room

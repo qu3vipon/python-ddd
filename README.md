@@ -106,15 +106,10 @@ class AggregateRoot(Entity):
 class Reservation(AggregateRoot):
     room: Room
     reservation_number: ReservationNumber
-    status: ReservationStatus
+    reservation_status: ReservationStatus
     date_in: datetime
     date_out: datetime
     guest: Guest
-    
-    _number: str = field(init=False)
-    _status: str = field(init=False)
-    _guest_mobile: str = field(init=False)
-    _guest_name: str | None = field(init=False)
 ```
 
 - Entity mix-in <br>
@@ -152,14 +147,14 @@ class Reservation(AggregateRoot):
             date_out=date_out,
             guest=guest,
             reservation_number=ReservationNumber.generate(),
-            status=ReservationStatus.IN_PROGRESS,
+            reservation_status=ReservationStatus.IN_PROGRESS,
         )
 
     def cancel(self):
-        if not self.status.in_progress():
+        if not self.reservation_status.in_progress():
             raise ReservationStatusError
   
-        self.status = ReservationStatus.CANCELLED
+        self.reservation_status = ReservationStatus.CANCELLED
   
     def check_in(self):
         # ...
@@ -223,21 +218,16 @@ def init_orm_mappers():
     ReceptionRoomEntity,
     room_table,
     properties={
-      "_status": room_table.c.status,
-      "status": composite(RoomStatus.from_value, room_table.c.status),
+      "room_status": composite(RoomStatus.from_value, room_table.c.status),
     }
   )
   mapper_registry.map_imperatively(
     ReceptionReservationEntity,
     reservation_table,
     properties={
-      "_number": reservation_table.c.number,
-      "_status": reservation_table.c.status,
-      "_guest_mobile": reservation_table.c.guest_mobile,
-      "_guest_name": reservation_table.c.guest_name,
       "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc, lazy="joined"),
       "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
-      "status": composite(ReservationStatus.from_value, reservation_table.c.status),
+      "reservation_status": composite(ReservationStatus.from_value, reservation_table.c.status),
       "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
     }
   )
@@ -248,11 +238,9 @@ def init_orm_mappers():
     DisplayRoomEntity,
     room_table,
     properties={
-      "_status": room_table.c.status,
-      "status": composite(RoomStatus.from_value, room_table.c.status),
+      "room_status": composite(RoomStatus.from_value, room_table.c.status),
     }
   )
-
 ```
 
 ```python
@@ -262,13 +250,16 @@ init_orm_mappers()
 
 Because entities do not need to know the implementation of the database table, let's use sqlalchemy's [imperative mapping](https://docs.sqlalchemy.org/en/14/orm/mapping_styles.html#imperative-mapping) to separate entity definitions and table definitions.
 
+Because name conflicts can occur when mapping tables and entities, the `number` is replaced like `reservation_number`.
+
+If you want to keep using the `number` as it is, you can change the original `number` to `_number` first.
+
+
 ```python
 @dataclass(eq=False, slots=True)
 class Room(Entity):
     number: str
-    status: RoomStatus | None
-  
-    _status: str = field(init=False)
+    room_status: RoomStatus | None
 ```
 
 Entities only need to use logically required data among the columns defined in the table.
@@ -439,7 +430,7 @@ class ReservationSchema(BaseModel):
         return cls(
             room=RoomSchema.from_entity(reservation.room),
             reservation_number=reservation.reservation_number.value,
-            status=reservation.status,
+            status=reservation.reservation_status,
             date_in=reservation.date_in,
             date_out=reservation.date_out,
             guest=GuestSchema.from_entity(reservation.guest),

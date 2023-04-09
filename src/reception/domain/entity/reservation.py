@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
 from reception.domain.exception.reservation import ReservationStatusException
@@ -16,15 +16,10 @@ from shared_kernel.domain.value_object import ReservationStatus, RoomStatus
 class Reservation(AggregateRoot):
     room: Room
     reservation_number: ReservationNumber
-    status: ReservationStatus
+    reservation_status: ReservationStatus
     date_in: datetime
     date_out: datetime
     guest: Guest
-
-    _number: str = field(init=False)
-    _status: str = field(init=False)
-    _guest_mobile: str = field(init=False)
-    _guest_name: str | None = field(init=False)
 
     @classmethod
     def make(cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest) -> Reservation:
@@ -35,34 +30,34 @@ class Reservation(AggregateRoot):
             date_out=date_out,
             guest=guest,
             reservation_number=ReservationNumber.generate(),
-            status=ReservationStatus.IN_PROGRESS,
+            reservation_status=ReservationStatus.IN_PROGRESS,
         )
 
     def cancel(self):
-        if not self.status.in_progress():
+        if not self.reservation_status.in_progress():
             raise ReservationStatusException
 
-        self.status = ReservationStatus.CANCELLED
-        self.room.status = RoomStatus.AVAILABLE
+        self.reservation_status = ReservationStatus.CANCELLED
+        self.room.room_status = RoomStatus.AVAILABLE
 
     def check_in(self):
-        if not self.room.status.is_reserved():
+        if not self.room.room_status.is_reserved():
             raise RoomStatusException
 
-        if not self.status.in_progress():
+        if not self.reservation_status.in_progress():
             raise ReservationStatusException
 
-        self.room.status = RoomStatus.OCCUPIED
+        self.room.room_status = RoomStatus.OCCUPIED
 
     def check_out(self):
-        if not self.room.status.is_occupied():
+        if not self.room.room_status.is_occupied():
             raise RoomStatusException
 
-        if not self.status.in_progress():
+        if not self.reservation_status.in_progress():
             raise ReservationStatusException
 
-        self.status = ReservationStatus.COMPLETE
-        self.room.status = RoomStatus.AVAILABLE
+        self.reservation_status = ReservationStatus.COMPLETE
+        self.room.room_status = RoomStatus.AVAILABLE
 
     def change_guest(self, guest: Guest):
         self.guest = guest

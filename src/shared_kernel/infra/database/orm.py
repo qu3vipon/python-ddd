@@ -46,8 +46,7 @@ def init_orm_mappers():
         ReceptionRoomEntity,
         room_table,
         properties={
-            "_status": room_table.c.status,
-            "status": composite(RoomStatus.from_value, room_table.c.status),
+            "room_status": composite(RoomStatus.from_value, room_table.c.status),
         }
     )
     mapper_registry.map_imperatively(
@@ -55,12 +54,8 @@ def init_orm_mappers():
         reservation_table,
         properties={
             "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc, lazy="joined"),
-            "_number": reservation_table.c.number,
-            "_status": reservation_table.c.status,
-            "_guest_mobile": reservation_table.c.guest_mobile,
-            "_guest_name": reservation_table.c.guest_name,
             "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
-            "status": composite(ReservationStatus.from_value, reservation_table.c.status),
+            "reservation_status": composite(ReservationStatus.from_value, reservation_table.c.status),
             "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
         }
     )
@@ -71,7 +66,6 @@ def init_orm_mappers():
         DisplayRoomEntity,
         room_table,
         properties={
-            "_status": room_table.c.status,
-            "status": composite(RoomStatus.from_value, room_table.c.status),
+            "room_status": composite(RoomStatus.from_value, room_table.c.status),
         }
     )

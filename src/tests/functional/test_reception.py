@@ -18,10 +18,10 @@ def test_create_reservation(client, mocker):
     new_reservation = Reservation(
         room=Room(
             number=ROOM_NUMBER,
-            status=RoomStatus.AVAILABLE,
+            room_status=RoomStatus.AVAILABLE,
         ),
         reservation_number=ReservationNumber.generate(),
-        status=ReservationStatus.IN_PROGRESS,
+        reservation_status=ReservationStatus.IN_PROGRESS,
         date_in=datetime(2023, 4, 1),
         date_out=datetime(2023, 4, 2),
         guest=Guest(

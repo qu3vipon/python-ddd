@@ -8,12 +8,10 @@ from shared_kernel.domain.value_object import RoomStatus
 @dataclass(eq=False, slots=True)
 class Room(Entity):
     number: str
-    status: RoomStatus
-
-    _status: str = field(init=False)
+    room_status: RoomStatus
 
     def reserve(self):
-        if not self.status.is_available():
+        if not self.room_status.is_available():
             raise RoomStatusException
 
-        self.status = RoomStatus.RESERVED
+        self.room_status = RoomStatus.RESERVED
