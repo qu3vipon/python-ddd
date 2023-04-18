@@ -68,7 +68,6 @@ src
 │   ├── infra
 │   └── presentation
 └── shared_kernel
-    ├── application
     ├── domain
     └── infra
         ├── database
@@ -147,7 +146,7 @@ class Reservation(AggregateRoot):
         )
 
     def cancel(self):
-        if not self.reservation_status.in_progress():
+        if not self.reservation_status.in_progress:
             raise ReservationStatusError
   
         self.reservation_status = ReservationStatus.CANCELLED

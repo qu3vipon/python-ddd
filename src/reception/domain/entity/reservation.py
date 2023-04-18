@@ -34,26 +34,26 @@ class Reservation(AggregateRoot):
         )
 
     def cancel(self):
-        if not self.reservation_status.in_progress():
+        if not self.reservation_status.in_progress:
             raise ReservationStatusException
 
         self.reservation_status = ReservationStatus.CANCELLED
         self.room.room_status = RoomStatus.AVAILABLE
 
     def check_in(self):
-        if not self.room.room_status.is_reserved():
+        if not self.room.room_status.is_reserved:
             raise RoomStatusException
 
-        if not self.reservation_status.in_progress():
+        if not self.reservation_status.in_progress:
             raise ReservationStatusException
 
         self.room.room_status = RoomStatus.OCCUPIED
 
     def check_out(self):
-        if not self.room.room_status.is_occupied():
+        if not self.room.room_status.is_occupied:
             raise RoomStatusException
 
-        if not self.reservation_status.in_progress():
+        if not self.reservation_status.in_progress:
             raise ReservationStatusException
 
         self.reservation_status = ReservationStatus.COMPLETE

@@ -11,7 +11,7 @@ class Room(Entity):
     room_status: RoomStatus
 
     def reserve(self):
-        if not self.room_status.is_available():
+        if not self.room_status.is_available:
             raise RoomStatusException
 
         self.room_status = RoomStatus.RESERVED

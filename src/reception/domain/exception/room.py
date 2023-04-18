@@ -1,4 +1,4 @@
-from shared_kernel.application.exception import BaseMsgException
+from shared_kernel.exception import BaseMsgException
 
 
 class RoomNotFoundException(BaseMsgException):

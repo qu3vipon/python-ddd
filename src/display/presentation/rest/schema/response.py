@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from shared_kernel.application.dto import BaseResponse
+from shared_kernel.schema import BaseResponse
 from shared_kernel.domain.value_object import RoomStatus
 
 
