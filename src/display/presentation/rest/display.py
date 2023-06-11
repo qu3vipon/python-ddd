@@ -17,7 +17,7 @@ router = APIRouter(prefix="/display")
 def get_rooms(
     request: GetRoomRequest = Depends(),
     display_query: DisplayQueryUseCase = Depends(Provide[AppContainer.display.query]),
-):
+) -> RoomResponse:
     rooms: List[Room] = display_query.get_rooms(room_status=request.status)
     return RoomResponse(
         detail="ok",

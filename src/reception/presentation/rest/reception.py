@@ -28,7 +28,7 @@ router = APIRouter(prefix="/reception")
 def post_reservations(
     create_reservation_request: CreateReservationRequest = Body(),
     reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
-):
+) -> ReservationResponse:
     try:
         reservation: Reservation = reservation_command.make_reservation(request=create_reservation_request)
     except RoomNotFoundException as e:
@@ -36,12 +36,7 @@ def post_reservations(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
-        )
-    except ReservationStatusException as e:
+    except (RoomStatusException, ReservationStatusException) as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -65,7 +60,7 @@ def post_reservations(
 def get_reservation(
     reservation_number: str,
     reservation_query: ReservationQueryUseCase = Depends(Provide[AppContainer.reception.reservation_query]),
-):
+) -> ReservationResponse:
     try:
         reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
     except ReservationNotFoundException as e:
@@ -94,7 +89,7 @@ def patch_reservation(
     reservation_number: str,
     update_quest_request: UpdateGuestRequest = Body(),
     reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
-):
+) -> ReservationResponse:
     try:
         reservation: Reservation = reservation_command.update_guest_info(
             reservation_number=reservation_number, request=update_quest_request
@@ -104,12 +99,7 @@ def patch_reservation(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
-        )
-    except ReservationStatusException as e:
+    except (RoomStatusException, ReservationStatusException) as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -136,17 +126,12 @@ def post_reservation_check_in(
     reservation_number: str,
     check_in_request: CheckInRequest = Body(),
     reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
-):
+) -> ReservationResponse:
     try:
         reservation: Reservation = reservation_command.check_in(
             reservation_number=reservation_number, mobile=check_in_request.mobile
         )
-    except CheckInDateException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.message,
-        )
-    except CheckInAuthenticationException as e:
+    except (CheckInDateException, CheckInAuthenticationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.message,
@@ -156,12 +141,7 @@ def post_reservation_check_in(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
-        )
-    except ReservationStatusException as e:
+    except (RoomStatusException, ReservationStatusException) as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -186,7 +166,7 @@ def post_reservation_check_in(
 def post_reservation_check_out(
     reservation_number: str,
     reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
-):
+) -> ReservationResponse:
     try:
         reservation: Reservation = reservation_command.check_out(reservation_number=reservation_number)
     except ReservationNotFoundException as e:
@@ -194,12 +174,7 @@ def post_reservation_check_out(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
-        )
-    except ReservationStatusException as e:
+    except (RoomStatusException, ReservationStatusException) as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,
@@ -216,7 +191,7 @@ def post_reservation_check_out(
 def post_reservation_cancel(
     reservation_number: str,
     reservation_command: ReservationCommandUseCase = Depends(Provide[AppContainer.reception.reservation_command]),
-):
+) -> ReservationResponse:
     try:
         reservation: Reservation = reservation_command.cancel(reservation_number=reservation_number)
     except ReservationNotFoundException as e:
@@ -224,12 +199,7 @@ def post_reservation_cancel(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
-    except RoomStatusException as e:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
-        )
-    except ReservationStatusException as e:
+    except (RoomStatusException, ReservationStatusException) as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=e.message,

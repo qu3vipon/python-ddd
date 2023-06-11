@@ -32,43 +32,41 @@ def test_create_reservation(client, mocker):
 
     reservation_cmd = mocker.MagicMock()
     reservation_cmd.make_reservation.return_value = new_reservation
-
-    client.app.container.reception.reservation_command.override(reservation_cmd)
-
-    # when
-    response = client.post(
-        "/reception/reservations",
-        json={
-            "room_number": ROOM_NUMBER,
-            "date_in": "2023-04-01T00:00:00",
-            "date_out": "2023-04-02T00:00:00",
-            "guest_mobile": GUEST_MOBILE,
-            "guest_name": GUEST_NAME,
-        }
-    )
-
-    # then
-    schema = Schema(
-        {
-            "detail": "ok",
-            "result": {
-                "room": {
-                    "number": ROOM_NUMBER,
-                    "status": RoomStatus.AVAILABLE,
-                },
-                "reservation_number": new_reservation.reservation_number.value,
-                "status": ReservationStatus.IN_PROGRESS,
+    with client.app.container.reception.reservation_command.override(reservation_cmd):
+        # when
+        response = client.post(
+            "/reception/reservations",
+            json={
+                "room_number": ROOM_NUMBER,
                 "date_in": "2023-04-01T00:00:00",
                 "date_out": "2023-04-02T00:00:00",
-                "guest": {
-                    "mobile": GUEST_MOBILE,
-                    "name": GUEST_NAME,
+                "guest_mobile": GUEST_MOBILE,
+                "guest_name": GUEST_NAME,
+            }
+        )
+
+        # then
+        schema = Schema(
+            {
+                "detail": "ok",
+                "result": {
+                    "room": {
+                        "number": ROOM_NUMBER,
+                        "status": RoomStatus.AVAILABLE,
+                    },
+                    "reservation_number": new_reservation.reservation_number.value,
+                    "status": ReservationStatus.IN_PROGRESS,
+                    "date_in": "2023-04-01T00:00:00",
+                    "date_out": "2023-04-02T00:00:00",
+                    "guest": {
+                        "mobile": GUEST_MOBILE,
+                        "name": GUEST_NAME,
+                    }
                 }
             }
-        }
-    )
-    assert response.status_code == 201
-    assert schema.validate(response.json())
+        )
+        assert response.status_code == 201
+        assert schema.validate(response.json())
 
 
 # get reservation

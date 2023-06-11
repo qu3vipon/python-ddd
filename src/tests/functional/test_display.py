@@ -12,27 +12,26 @@ def test_get_rooms(client, mocker):
     display_query = mocker.MagicMock()
     display_query.get_rooms.return_value = [room_available]
 
-    client.app.container.display.query.override(display_query)
+    with client.app.container.display.query.override(display_query):
+        # when
+        response = client.get("/display/rooms", params={"status": RoomStatus.AVAILABLE})
 
-    # when
-    response = client.get("/display/rooms", params={"status": RoomStatus.AVAILABLE})
+        # then
+        display_query.get_rooms.assert_called_once_with(room_status=RoomStatus.AVAILABLE)
 
-    # then
-    display_query.get_rooms.assert_called_once_with(room_status=RoomStatus.AVAILABLE)
+        schema = Schema(
+            {
+                "detail": "ok",
+                "result": [
+                    {
+                        "id": 1,
+                        "number": "A",
+                        "status": RoomStatus.AVAILABLE,
+                        "image_url": "img1",
+                        "description": Or(str, None),
+                    }
+                ]
+            }
+        )
 
-    schema = Schema(
-        {
-            "detail": "ok",
-            "result": [
-                {
-                    "id": 1,
-                    "number": "A",
-                    "status": RoomStatus.AVAILABLE,
-                    "image_url": "img1",
-                    "description": Or(str, None),
-                }
-            ]
-        }
-    )
-
-    assert schema.is_valid(response.json())
+        assert schema.is_valid(response.json())

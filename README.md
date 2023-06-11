@@ -147,7 +147,7 @@ class Reservation(AggregateRoot):
 
     def cancel(self):
         if not self.reservation_status.in_progress:
-            raise ReservationStatusError
+            raise ReservationStatusException
   
         self.reservation_status = ReservationStatus.CANCELLED
   
@@ -352,7 +352,7 @@ def get_reservation(
 ):
     try:
       reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
-    except ReservationNotFoundError as e:
+    except ReservationNotFoundException as e:
       raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail=e.message,
@@ -385,7 +385,7 @@ class ReservationQueryUseCase:
             )
 
         if not reservation:
-            raise ReservationNotFoundError
+            raise ReservationNotFoundException
 
         return reservation
 ```
