@@ -59,9 +59,8 @@ src
 │   └── presentation
 │       ├── grpc
 │       └── rest
-│           └── schema
-│                ├── request
-│                └── response
+│            ├── request
+│            └── response
 ├── display
 │   ├── application
 │   ├── domain
@@ -341,7 +340,7 @@ If a value object consists of more than one column, you must override the `__com
 FastAPI's `Depends` makes it easy to implement **Dependency Injection** between layers. 
 And you can achieve [Inversion of control](https://en.wikipedia.org/wiki/Inversion_of_control) with [Dependency Injector](https://python-dependency-injector.ets-labs.org/index.html). 
 
-- [presentation/rest/reception.py](src/reception/presentation/rest/reception.py)
+- [presentation/rest/reception.py](src/reception/presentation/rest/api.py)
 
 ```python
 @router.get("/reservations/{reservation_number}")
@@ -400,7 +399,7 @@ class ReservationRDBRepository(RDBRepository):
 
 #### Schema
 Pydantic makes it easy to implement the request and response schema.
-- [presentation/rest/schema/request.py](src/reception/presentation/rest/schema/request.py)
+- [presentation/rest/schema/request.py](src/reception/presentation/rest/request.py)
 ```python
 class CreateReservationRequest(BaseModel):
     room_number: str
@@ -410,7 +409,7 @@ class CreateReservationRequest(BaseModel):
     guest_name: str | None = None
 ```
 
-- [application/Schema/response.py](src/reception/presentation/rest/schema/response.py)
+- [application/Schema/response.py](src/reception/presentation/rest/response.py)
 ```python
 class ReservationSchema(BaseModel):
     room: RoomSchema

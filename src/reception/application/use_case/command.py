@@ -2,7 +2,7 @@ from typing import Callable, ContextManager
 
 from sqlalchemy.orm import Session
 
-from reception.presentation.rest.schema.request import CreateReservationRequest, UpdateGuestRequest
+from reception.presentation.rest.request import CreateReservationRequest, UpdateGuestRequest
 from reception.domain.exception.room import RoomNotFoundException
 from reception.application.use_case.query import ReservationQueryUseCase
 from reception.domain.entity.reservation import Reservation

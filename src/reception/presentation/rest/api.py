@@ -8,8 +8,8 @@ from reception.domain.exception.check_in import CheckInAuthenticationException, 
 from reception.domain.exception.reservation import ReservationNotFoundException, ReservationStatusException
 from reception.domain.exception.room import RoomNotFoundException, RoomStatusException
 from reception.domain.entity.reservation import Reservation
-from reception.presentation.rest.schema.request import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
-from reception.presentation.rest.schema.response import ReservationSchema, ReservationResponse
+from reception.presentation.rest.request import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
+from reception.presentation.rest.response import ReservationSchema, ReservationResponse
 from shared_kernel.schema import BaseResponse
 from shared_kernel.infra.container import AppContainer
 

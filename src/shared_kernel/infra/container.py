@@ -7,8 +7,8 @@ from reception.infra.container import ReceptionContainer
 class AppContainer(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
-            "display.presentation.rest.display",
-            "reception.presentation.rest.reception"
+            "display.presentation.rest.api",
+            "reception.presentation.rest.api"
         ]
     )
 
