@@ -133,7 +133,9 @@ class Reservation(AggregateRoot):
     # ...
 
     @classmethod
-    def make(cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest) -> Reservation:
+    def make(
+        cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest
+    ) -> Reservation:
         room.reserve()
         return cls(
             room=room,
@@ -253,7 +255,7 @@ If you want to keep using the `number` as it is, you can change the original `nu
 @dataclass(eq=False, slots=True)
 class Room(Entity):
     number: str
-    room_status: RoomStatus | None
+    room_status: RoomStatus
 ```
 
 Entities only need to use logically required data among the columns defined in the table.
@@ -292,7 +294,15 @@ class ValueObject:
                     return item
             return None
         else:
-            return cls(value=value)
+            try:
+                instance = cls(value=value)
+                instance.__validate__()
+                return instance
+            except Exception:
+                raise ValueObjectValidationError
+
+    def __validate__(self) -> None:
+        raise NotImplementedError
 ```
 
 If you define the `__composite_values_()` method, sqlalchemy separates the object and puts them in the columns when you save the data.
@@ -320,6 +330,14 @@ class ReservationNumber(ValueObject):
           random.choice(string.ascii_uppercase + string.digits) for _ in range(cls.RANDOM_STR_LENGTH)
         )
         return cls(value=time_part + ":" + random_strings)
+
+    def __validate__(self) -> None:
+        time_part, random_strings = self.value.split(":")
+
+        datetime.strptime(time_part, ReservationNumber._DATETIME_FORMAT)
+
+        if len(random_strings) != ReservationNumber._RANDOM_STR_LENGTH:
+            raise ValueError
 ```
 
 `ReservationNumber` intentionally used the name `value` for a single attribute to leverage `__composite_values__()` in `ValueObject` class.
@@ -332,6 +350,9 @@ class Guest(ValueObject):
 
     def __composite_values__(self):
         return self.mobile, self.name
+
+    def __validate__(self) -> None:
+        pass
 ```
 
 If a value object consists of more than one column, you must override the `__composite_values__()` as shown above.

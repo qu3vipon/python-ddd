@@ -22,7 +22,9 @@ class Reservation(AggregateRoot):
     guest: Guest
 
     @classmethod
-    def make(cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest) -> Reservation:
+    def make(
+        cls, room: Room, date_in: datetime, date_out: datetime, guest: Guest
+    ) -> Reservation:
         room.reserve()
         return cls(
             room=room,
