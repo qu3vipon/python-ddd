@@ -292,14 +292,14 @@ class ValueObject:
             for item in cls:
                 if item.value == value:
                     return item
-            return None
-        else:
-            try:
-                instance = cls(value=value)
-                instance.__validate__()
-                return instance
-            except Exception:
-                raise ValueObjectValidationError
+            raise ValueObjectValidationError
+        
+        try:
+            instance = cls(value=value)
+            instance.__validate__()
+            return instance
+        except Exception:
+            raise ValueObjectValidationError
 
     def __validate__(self) -> None:
         raise NotImplementedError
@@ -308,6 +308,8 @@ class ValueObject:
 If you define the `__composite_values_()` method, sqlalchemy separates the object and puts them in the columns when you save the data.
 
 > NOTE: The , in the return of `__composite_value__()` is not a typo.
+
+`__validate_()` method is a method that checks conditions before creating a value object instance and can be customized. 
 
 ```python
 class RoomStatus(ValueObject, str, Enum):
@@ -342,6 +344,8 @@ class ReservationNumber(ValueObject):
 
 `ReservationNumber` intentionally used the name `value` for a single attribute to leverage `__composite_values__()` in `ValueObject` class.
 
+`__validate__` method naively raises errors when validating conditions.
+
 ```python
 @dataclass(slots=True)
 class Guest(ValueObject):
@@ -356,6 +360,27 @@ class Guest(ValueObject):
 ```
 
 If a value object consists of more than one column, you must override the `__composite_values__()` as shown above.
+
+`__validate__` can be passed, if it's not necessary.
+
+#### 5. Exception
+```python
+class ReservationStatusException(BaseMsgException):
+    message = "Invalid request for current reservation status."
+
+    
+@dataclass(eq=False, slots=True)
+class Reservation(AggregateRoot):
+    # ...
+    
+    def cancel(self):
+        if not self.reservation_status.in_progress:
+            raise ReservationStatusException
+  
+        self.reservation_status = ReservationStatus.CANCELLED
+```
+
+By defining and using domain exceptions, the cohesion can be increased.
 
 #### Dependency Injection
 FastAPI's `Depends` makes it easy to implement **Dependency Injection** between layers. 

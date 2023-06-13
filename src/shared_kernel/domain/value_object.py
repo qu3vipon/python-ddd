@@ -11,19 +11,19 @@ class ValueObject:
         return self.value,
 
     @classmethod
-    def from_value(cls, value: Any) -> ValueObjectType | None:
+    def from_value(cls, value: Any) -> ValueObjectType:
         if isinstance(cls, EnumMeta):
             for item in cls:
                 if item.value == value:
                     return item
-            return None
-        else:
-            try:
-                instance = cls(value=value)
-                instance.__validate__()
-                return instance
-            except Exception:
-                raise ValueObjectValidationError
+            raise ValueObjectValidationError
+
+        try:
+            instance = cls(value=value)
+            instance.__validate__()
+            return instance
+        except Exception:
+            raise ValueObjectValidationError
 
     def __validate__(self) -> None:
         raise NotImplementedError
