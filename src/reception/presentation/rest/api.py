@@ -10,7 +10,7 @@ from reception.domain.exception.room import RoomNotFoundException, RoomStatusExc
 from reception.domain.entity.reservation import Reservation
 from reception.presentation.rest.request import CheckInRequest, CreateReservationRequest, UpdateGuestRequest
 from reception.presentation.rest.response import ReservationSchema, ReservationResponse
-from shared_kernel.schema import BaseResponse
+from shared_kernel.presentation.response import BaseResponse
 from shared_kernel.infra.container import AppContainer
 
 router = APIRouter(prefix="/reception")

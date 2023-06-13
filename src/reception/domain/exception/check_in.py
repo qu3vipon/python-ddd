@@ -1,4 +1,4 @@
-from shared_kernel.exception import BaseMsgException
+from shared_kernel.domain.exception import BaseMsgException
 
 
 class CheckInDateException(BaseMsgException):

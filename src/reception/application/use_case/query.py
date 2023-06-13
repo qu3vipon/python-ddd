@@ -29,7 +29,7 @@ class ReservationQueryUseCase:
         return room
 
     def get_reservation(self, reservation_number: str) -> Reservation:
-        reservation_number = ReservationNumber.from_value(reservation_number)
+        reservation_number = ReservationNumber.from_value(value=reservation_number)
 
         with self.db_session() as session:
             reservation: Reservation | None = (

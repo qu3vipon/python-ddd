@@ -1,6 +1,8 @@
 from enum import Enum, EnumMeta
 from typing import Any, TypeVar
 
+from shared_kernel.domain.exception import ValueObjectValidationError
+
 ValueObjectType = TypeVar("ValueObjectType", bound="ValueObject")
 
 
@@ -16,7 +18,15 @@ class ValueObject:
                     return item
             return None
         else:
-            return cls(value=value)
+            try:
+                instance = cls(value=value)
+                instance.__validate__()
+                return instance
+            except Exception:
+                raise ValueObjectValidationError
+
+    def __validate__(self) -> None:
+        raise NotImplementedError
 
 
 class RoomStatus(ValueObject, str, Enum):
