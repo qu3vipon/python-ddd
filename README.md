@@ -221,7 +221,9 @@ def init_orm_mappers():
     ReceptionReservationEntity,
     reservation_table,
     properties={
-      "room": relationship(Room, backref="reservations", order_by=reservation_table.c.id.desc, lazy="joined"),
+      "room": relationship(
+        Room, backref="reservations", order_by=reservation_table.c.id.desc, lazy="joined"
+      ),
       "reservation_number": composite(ReservationNumber.from_value, reservation_table.c.number),
       "reservation_status": composite(ReservationStatus.from_value, reservation_table.c.status),
       "guest": composite(Guest, reservation_table.c.guest_mobile, reservation_table.c.guest_name),
@@ -329,7 +331,8 @@ class ReservationNumber(ValueObject):
     def generate(cls) -> ReservationNumber:
         time_part: str = datetime.utcnow().strftime(cls.DATETIME_FORMAT)
         random_strings: str = ''.join(
-          random.choice(string.ascii_uppercase + string.digits) for _ in range(cls.RANDOM_STR_LENGTH)
+          random.choice(string.ascii_uppercase + string.digits) 
+          for _ in range(cls.RANDOM_STR_LENGTH)
         )
         return cls(value=time_part + ":" + random_strings)
 
@@ -393,10 +396,14 @@ And you can achieve [Inversion of control](https://en.wikipedia.org/wiki/Inversi
 @inject
 def get_reservation(
     reservation_number: str,
-    reservation_query: ReservationQueryUseCase = Depends(Provide[AppContainer.reception.reservation_query]),
+    reservation_query: ReservationQueryUseCase = Depends(
+      Provide[AppContainer.reception.reservation_query]
+    ),
 ):
     try:
-      reservation: Reservation = reservation_query.get_reservation(reservation_number=reservation_number)
+      reservation: Reservation = reservation_query.get_reservation(
+        reservation_number=reservation_number
+      )
     except ReservationNotFoundException as e:
       raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -439,7 +446,9 @@ class ReservationQueryUseCase:
 ```python
 class ReservationRDBRepository(RDBRepository):
     @staticmethod
-    def get_reservation_by_reservation_number(session, reservation_number: ReservationNumber) -> Reservation | None:
+    def get_reservation_by_reservation_number(
+        session: Session, reservation_number: ReservationNumber
+    ) -> Reservation | None:
         return session.query(Reservation).filter_by(reservation_number=reservation_number).first()
 ```
 
