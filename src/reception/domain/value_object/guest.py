@@ -16,6 +16,3 @@ class Guest(ValueObject):
 
     def __composite_values__(self):
         return self.mobile, self.name
-
-    def __validate__(self) -> None:
-        pass

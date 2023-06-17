@@ -23,11 +23,3 @@ class ReservationNumber(ValueObject):
             random.choice(string.ascii_uppercase + string.digits) for _ in range(cls._RANDOM_STR_LENGTH)
         )
         return cls(value=time_part + ":" + random_strings)
-
-    def __validate__(self) -> None:
-        time_part, random_strings = self.value.split(":")
-
-        datetime.strptime(time_part, ReservationNumber._DATETIME_FORMAT)
-
-        if len(random_strings) != ReservationNumber._RANDOM_STR_LENGTH:
-            raise ValueError

@@ -1,6 +1,6 @@
-class ValueObjectValidationError(Exception):
+class ValueObjectEnumError(Exception):
     def __str__(self):
-        return "Value Object got invalid value"
+        return "Value Object got invalid value."
 
 
 class BaseMsgException(Exception):

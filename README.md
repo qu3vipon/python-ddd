@@ -294,24 +294,16 @@ class ValueObject:
             for item in cls:
                 if item.value == value:
                     return item
-            raise ValueObjectValidationError
+            raise ValueObjectEnumError
         
-        try:
-            instance = cls(value=value)
-            instance.__validate__()
-            return instance
-        except Exception:
-            raise ValueObjectValidationError
+        instance = cls(value=value)
+        return instance
 
-    def __validate__(self) -> None:
-        raise NotImplementedError
 ```
 
 If you define the `__composite_values_()` method, sqlalchemy separates the object and puts them in the columns when you save the data.
 
 > NOTE: The , in the return of `__composite_value__()` is not a typo.
-
-`__validate_()` method is a method that checks conditions before creating a value object instance and can be customized. 
 
 ```python
 class RoomStatus(ValueObject, str, Enum):
@@ -335,19 +327,10 @@ class ReservationNumber(ValueObject):
           for _ in range(cls.RANDOM_STR_LENGTH)
         )
         return cls(value=time_part + ":" + random_strings)
-
-    def __validate__(self) -> None:
-        time_part, random_strings = self.value.split(":")
-
-        datetime.strptime(time_part, ReservationNumber._DATETIME_FORMAT)
-
-        if len(random_strings) != ReservationNumber._RANDOM_STR_LENGTH:
-            raise ValueError
 ```
 
 `ReservationNumber` intentionally used the name `value` for a single attribute to leverage `__composite_values__()` in `ValueObject` class.
 
-`__validate__` method naively raises errors when validating conditions.
 
 ```python
 @dataclass(slots=True)
@@ -357,14 +340,9 @@ class Guest(ValueObject):
 
     def __composite_values__(self):
         return self.mobile, self.name
-
-    def __validate__(self) -> None:
-        pass
 ```
 
 If a value object consists of more than one column, you must override the `__composite_values__()` as shown above.
-
-`__validate__` can be passed, if it's not necessary.
 
 #### 5. Exception
 ```python
@@ -427,7 +405,7 @@ class ReservationQueryUseCase:
         self.db_session = db_session
 
     def get_reservation(self, reservation_number: str) -> Reservation:
-        reservation_number = ReservationNumber.from_value(reservation_number)
+        reservation_number = ReservationNumber.from_value(value=reservation_number)
 
         with self.db_session() as session:
             reservation: Reservation | None = (

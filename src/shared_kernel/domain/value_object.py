@@ -1,7 +1,7 @@
 from enum import Enum, EnumMeta
 from typing import Any, TypeVar
 
-from shared_kernel.domain.exception import ValueObjectValidationError
+from shared_kernel.domain.exception import ValueObjectEnumError
 
 ValueObjectType = TypeVar("ValueObjectType", bound="ValueObject")
 
@@ -16,17 +16,10 @@ class ValueObject:
             for item in cls:
                 if item.value == value:
                     return item
-            raise ValueObjectValidationError
+            raise ValueObjectEnumError
 
-        try:
-            instance = cls(value=value)
-            instance.__validate__()
-            return instance
-        except Exception:
-            raise ValueObjectValidationError
-
-    def __validate__(self) -> None:
-        raise NotImplementedError
+        instance = cls(value=value)
+        return instance
 
 
 class RoomStatus(ValueObject, str, Enum):
